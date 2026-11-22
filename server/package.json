@@ -1,0 +1,13 @@
+{
+  "name": "slicehub-server-shim",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Compatibility wrapper. The single Express/Better Auth implementation lives in ../../slicehub-server.",
+  "scripts": {
+    "dev": "npm --prefix ../../slicehub-server run dev",
+    "start": "npm --prefix ../../slicehub-server run start",
+    "create-admin": "npm --prefix ../../slicehub-server run create-admin",
+    "seed": "npm --prefix ../../slicehub-server run seed",
+    "typecheck": "npm --prefix ../../slicehub-server run typecheck"
+  }
+}
