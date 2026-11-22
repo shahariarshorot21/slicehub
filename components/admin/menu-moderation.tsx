@@ -35,6 +35,9 @@ export function MenuModeration() {
   const { data, loading, error, reload } = useApi<AdminMenuItem[]>(query, [query]);
 
   const review = async (item: AdminMenuItem, nextStatus: "approved" | "rejected", featured?: boolean) => {
+    if (nextStatus === "rejected" && !window.confirm(`Reject ${item.itemName}? It will be hidden from the public menu.`)) {
+      return;
+    }
     setBusyId(item._id);
     try {
       const result = await apiFetch<{ message: string }>(`/admin/menu-items/${item._id}/review`, {
@@ -152,6 +155,9 @@ export function MenuModeration() {
               <p className="text-xs text-gray-400">
                 {item.restaurantName || item.vendorName || "Vendor"} · {item.vendorEmail || ""}
               </p>
+              {item.description && (
+                <p className="line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+              )}
               <p className="text-[11px] text-gray-400">Submitted {formatDate(item.createdAt || new Date(0))}</p>
             </div>
             <span className="font-black text-[#E5484D]">{formatPrice(item.price)}</span>

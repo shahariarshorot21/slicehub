@@ -27,7 +27,7 @@ export default function VendorOverview() {
   const { data: items, loading: itemsLoading } = useApi<Pizza[]>("/menu-items/vendor/items");
   const { data: stats, loading: statsLoading } = useApi<VendorStats>("/orders/vendor/stats");
   const { data: subscription, loading: subscriptionLoading } = useApi<Subscription>("/payments/subscription-status");
-  const { data: profile } = useApi<SessionUser>("/me");
+  const { data: profile } = useApi<SessionUser>("/me/me");
   const { user } = useAuth();
 
   const premiumActive = isPremiumUser(subscription);

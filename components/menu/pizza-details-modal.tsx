@@ -106,10 +106,16 @@ export function PizzaDetailsModal({
 
       const newOrder: Order = {
         _id: `demo-${Date.now()}`,
-        customer: user?.id || "demo-user",
+        itemId: pizza._id,
+        customerId: user?.id || "demo-user",
+        vendorId: pizza.vendorId,
+        customer: user
+          ? { name: user.name, email: user.email, image: user.image }
+          : null,
         items: [
           {
-            menuItem: pizza._id,
+            itemId: pizza._id,
+            menuItem: pizza,
             nameSnapshot: pizza.itemName,
             priceSnapshot: total,
             quantity: quantity,

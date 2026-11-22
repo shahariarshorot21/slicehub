@@ -51,6 +51,8 @@ export type Pizza = {
   status: "pending" | "approved" | "rejected" | "inactive";
   isAvailable: boolean;
   featured: boolean;
+  approvedAt?: string | null;
+  rejectedAt?: string | null;
   vendorId: string;
   vendorName?: string;
   vendor?: VendorSummary;
@@ -115,6 +117,28 @@ export type Transaction = {
   currency: string;
   status: "pending" | "completed" | "failed" | "refunded";
   stripeSessionId: string;
+  customerName?: string | null;
+  customerEmail?: string | null;
+  paymentMethod?: string | null;
   createdAt: string;
   vendor?: { name?: string; email?: string } | null;
+};
+
+export type AdminUserActivity = {
+  orders: Array<{
+    _id: string;
+    status: OrderStatus;
+    totalAmount?: number;
+    createdAt?: string;
+    items?: OrderItemSnapshot[];
+    item?: Pizza | null;
+  }>;
+  menuItems: Array<{
+    _id: string;
+    itemName: string;
+    status: Pizza["status"];
+    price?: number;
+    createdAt?: string;
+  }>;
+  transactions: Transaction[];
 };

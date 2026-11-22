@@ -10,7 +10,6 @@ const navByRole: Record<Role, { title: string; nav: NavItem[] }> = {
   admin: { title: "Admin Dashboard", nav: adminNav },
 };
 
-/** Client boundary for the dashboard shell; the server layout already verified the role. */
 export function DashboardGuard({ role, children }: { role: Role; children: React.ReactNode }) {
   const config = navByRole[role];
   return (

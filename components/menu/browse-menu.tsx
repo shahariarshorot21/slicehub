@@ -12,54 +12,6 @@ import { Select } from "@/components/ui/select";
 
 type Filters = { categories: string[]; locations: string[] };
 
-const REALISTIC_PIZZAS = [
-  { name: "Classic Margherita", desc: "San Marzano tomato, fresh mozzarella, basil and extra virgin olive oil.", category: "Classic", price: 450 },
-  { name: "Pepperoni Supreme", desc: "A generous layer of pepperoni, mozzarella and our signature tomato sauce.", category: "Spicy", price: 520 },
-  { name: "Truffle Mushroom", desc: "Wild mushrooms, truffle cream, mozzarella and a touch of fresh thyme.", category: "Premium", price: 580 },
-  { name: "Smoky BBQ Chicken", desc: "Tender chicken, smoky BBQ sauce, red onion and melted mozzarella.", category: "BBQ", price: 560 },
-  { name: "Four Cheese", desc: "Mozzarella, cheddar, parmesan and gorgonzola blended to perfection.", category: "Cheese Lovers", price: 540 },
-  { name: "Garlic Shrimp", desc: "Juicy shrimp, garlic butter, fresh parsley and a hint of chili.", category: "Seafood", price: 620 },
-  { name: "Hot Honey Pepperoni", desc: "Cup-and-char pepperoni, whipped ricotta, chili honey and fresh oregano.", category: "Spicy", price: 550 },
-  { name: "Tuscan Garlic Supreme", desc: "Roasted garlic cloves, grilled chicken, spinach and creamy white sauce.", category: "Classic", price: 490 },
-  { name: "Spicy Diavola", desc: "Italian spicy salami, fresh red chillies, mozzarella and hot honey drizzle.", category: "Spicy", price: 530 },
-  { name: "Mediterranean Veggie", desc: "Black olives, feta cheese, sun-dried tomatoes, artichokes and pesto base.", category: "Classic", price: 480 },
-  { name: "Prosciutto Arugula", desc: "Aged prosciutto, fresh baby arugula, shaved parmesan and balsamic glaze.", category: "Premium", price: 610 },
-  { name: "Buffalo Chicken", desc: "Crispy chicken chunks tossed in spicy buffalo sauce with ranch drizzle.", category: "Spicy", price: 570 },
-  { name: "Pesto Paradise", desc: "House-made basil pesto, cherry tomatoes, pine nuts and fresh mozzarella.", category: "Classic", price: 500 },
-  { name: "Meat Lovers Feast", desc: "Pepperoni, Italian sausage, smoked ham, ground beef and bacon.", category: "Classic", price: 650 },
-  { name: "Wild Mushroom & Truffle", desc: "Portobello mushrooms, cremini, truffle oil and rich fontina cheese.", category: "Premium", price: 590 },
-  { name: "Hawaiian Luau", desc: "Sweet pineapple chunks, smoked ham, crispy bacon and extra mozzarella.", category: "Classic", price: 470 },
-  { name: "Caprese Melt", desc: "Sliced vine tomatoes, fresh mozzarella balls, basil leaves and pesto swirl.", category: "Cheese Lovers", price: 460 },
-  { name: "Double Cheesy Crunch", desc: "Extra double layers of stretchy mozzarella with golden toasted crust edges.", category: "Cheese Lovers", price: 490 },
-];
-
-const FALLBACK_PIZZAS: Pizza[] = REALISTIC_PIZZAS.map((item, index) => ({
-  _id: `fallback-${index + 1}`,
-  itemName: item.name,
-  description: item.desc,
-  price: item.price,
-  images: [
-    index % 6 === 0
-      ? "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=60"
-      : index % 6 === 1
-      ? "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=500&auto=format&fit=crop&q=60"
-      : index % 6 === 2
-      ? "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&auto=format&fit=crop&q=60"
-      : index % 6 === 3
-      ? "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&auto=format&fit=crop&q=60"
-      : index % 6 === 4
-      ? "https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=500&auto=format&fit=crop&q=60"
-      : "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=500&auto=format&fit=crop&q=60"
-  ],
-  category: item.category,
-  location: index % 2 === 0 ? "Dhaka" : "Chittagong",
-  isAvailable: true,
-  status: "approved",
-  featured: index < 6,
-  vendorId: `fallback-vendor-${index + 1}`,
-  averageRating: 4.8,
-}));
-
 const CATEGORY_PILLS = [
   "Classic",
   "Spicy",
@@ -97,50 +49,9 @@ export function BrowseMenu() {
 
   const { data, loading, error } = useApi<Pizza[]>(query, [query]);
 
-  const items = useMemo(() => {
-    let sourceList: Pizza[] = [];
-    if (data && data.length > 0) {
-      sourceList = data.map((pizza, idx) => {
-        const isGeneric = !pizza.itemName || pizza.itemName.startsWith("Signature Pizza");
-        if (isGeneric) {
-          return {
-            ...pizza,
-            itemName: REALISTIC_PIZZAS[idx % REALISTIC_PIZZAS.length].name,
-            description: REALISTIC_PIZZAS[idx % REALISTIC_PIZZAS.length].desc,
-            price: pizza.price || REALISTIC_PIZZAS[idx % REALISTIC_PIZZAS.length].price,
-          };
-        }
-        return pizza;
-      });
-    }
-
-    if (sourceList.length >= 18) {
-      return sourceList.slice(0, 18);
-    }
-
-    const needed = 18 - sourceList.length;
-    const combined = [...sourceList, ...FALLBACK_PIZZAS.slice(0, needed)];
-
-    return combined
-      .filter((pizza) => {
-        if (search.trim()) {
-          const q = search.trim().toLowerCase();
-          const matchName = pizza.itemName?.toLowerCase().includes(q);
-          const matchDesc = pizza.description?.toLowerCase().includes(q);
-          if (!matchName && !matchDesc) return false;
-        }
-        if (category && pizza.category !== category) return false;
-        if (minPrice && Number(minPrice) >= 0 && Number(pizza.price) < Number(minPrice)) return false;
-        if (maxPrice && Number(maxPrice) >= 0 && Number(pizza.price) > Number(maxPrice)) return false;
-        return true;
-      })
-      .sort((a, b) => {
-        if (sort === "price-asc") return Number(a.price) - Number(b.price);
-        if (sort === "price-desc") return Number(b.price) - Number(a.price);
-        return 0;
-      })
-      .slice(0, 18);
-  }, [data, search, category, minPrice, maxPrice, sort]);
+  // Searching, filtering, sorting and the public approved-only rule are all
+  // enforced by the Express API, so the UI renders exactly what MongoDB returned.
+  const items = data ?? [];
 
   useEffect(() => {
     const timer = setTimeout(() => {

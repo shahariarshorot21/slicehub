@@ -30,6 +30,7 @@ export default function AdminTransactionsPage() {
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState("");
   const [status, setStatus] = useState("");
+  const [method, setMethod] = useState("");
   const [date, setDate] = useState("");
   const [selected, setSelected] = useState<AdminTransaction | null>(null);
 
@@ -37,6 +38,7 @@ export default function AdminTransactionsPage() {
     ...(search ? { search } : {}),
     ...(plan ? { plan } : {}),
     ...(status ? { status } : {}),
+    ...(method ? { method } : {}),
     ...(date ? { date } : {}),
   };
   const query = `/admin/transactions${Object.keys(filters).length ? `?${new URLSearchParams(filters).toString()}` : ""}`;
@@ -58,13 +60,13 @@ export default function AdminTransactionsPage() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
         <label className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search transaction ID or vendor..."
+            placeholder="Search transaction ID, payer or vendor..."
             className="pl-10"
           />
         </label>
@@ -79,6 +81,10 @@ export default function AdminTransactionsPage() {
           <option value="completed">Successful</option>
           <option value="failed">Failed</option>
           <option value="refunded">Refunded</option>
+        </Select>
+        <Select value={method} onChange={(event) => setMethod(event.target.value)} aria-label="Filter by payment method">
+          <option value="">All methods</option>
+          <option value="card">Card</option>
         </Select>
         <Input
           type="date"
@@ -97,13 +103,15 @@ export default function AdminTransactionsPage() {
       )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-orange-100 bg-white dark:border-white/10 dark:bg-slate-900">
-        <table className="w-full min-w-[900px] text-left text-sm">
+        <table className="w-full min-w-[1180px] text-left text-sm">
           <thead className="bg-orange-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-white/5">
             <tr>
               <th className="px-4 py-3">Transaction</th>
+              <th className="px-4 py-3">Customer / payer</th>
               <th className="px-4 py-3">Vendor</th>
               <th className="px-4 py-3">Restaurant</th>
               <th className="px-4 py-3">Plan</th>
+              <th className="px-4 py-3">Method</th>
               <th className="px-4 py-3">Amount</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Date</th>
@@ -115,11 +123,18 @@ export default function AdminTransactionsPage() {
               <tr key={item._id}>
                 <td className="px-4 py-3 font-mono text-xs text-gray-500">{item._id.slice(-10)}</td>
                 <td className="px-4 py-3">
+                  <p className="font-bold text-gray-900 dark:text-white">{item.customerName || "Not recorded"}</p>
+                  <p className="text-xs text-gray-400">{item.customerEmail || ""}</p>
+                </td>
+                <td className="px-4 py-3">
                   <p className="font-bold text-gray-900 dark:text-white">{item.vendor?.name || "Unknown vendor"}</p>
                   <p className="text-xs text-gray-400">{item.vendor?.email || ""}</p>
                 </td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.restaurantName || "—"}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{item.plan}</td>
+                <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">
+                  {item.paymentMethod || "Not recorded"}
+                </td>
                 <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">{formatPrice(item.amount / 100)}</td>
                 <td className="px-4 py-3">
                   <Badge tone={statusTone(item.status)}>{statusLabel(item.status)}</Badge>
@@ -144,11 +159,14 @@ export default function AdminTransactionsPage() {
         {selected && (
           <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
             <DetailRow label="Transaction ID" value={selected._id} />
+            <DetailRow label="Customer / payer name" value={selected.customerName || "Not recorded"} />
+            <DetailRow label="Customer / payer email" value={selected.customerEmail || "Not recorded"} />
             <DetailRow label="Vendor" value={selected.vendor?.name || "Unknown vendor"} />
             <DetailRow label="Vendor email" value={selected.vendor?.email || "Not available"} />
             <DetailRow label="Restaurant" value={selected.restaurantName || "Not provided"} />
             <DetailRow label="Subscription plan" value={selected.plan} />
             <DetailRow label="Payment amount" value={formatPrice(selected.amount / 100)} />
+            <DetailRow label="Payment method" value={selected.paymentMethod || "Not recorded"} />
             <DetailRow label="Currency" value={selected.currency.toUpperCase()} />
             <DetailRow label="Payment status" value={statusLabel(selected.status)} />
             <DetailRow label="Transaction date" value={formatDate(selected.createdAt)} />

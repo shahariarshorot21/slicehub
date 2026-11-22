@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import { useApi } from "@/hooks/use-api";
 import { useAuth } from "@/hooks/use-auth";
 import { apiFetch } from "@/lib/api";
-import type { Role } from "@/lib/types";
+import type { AdminUserActivity, Role } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { EmptyState, LoadingState } from "@/components/ui/states";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatPrice } from "@/lib/utils";
+import { orderStatusLabel } from "@/lib/order-status";
 
 type AdminUserDetail = {
   _id: string;
@@ -32,6 +33,7 @@ type AdminUserDetail = {
   subscriptionExpiresAt?: string | null;
   favoriteItemIds?: string[];
   createdAt: string;
+  activity?: AdminUserActivity;
 };
 
 export default function AdminUserDetailPage() {
@@ -44,6 +46,7 @@ export default function AdminUserDetailPage() {
 
   const changeRole = async (role: Role) => {
     if (!user || role === user.role) return;
+    if (!window.confirm(`Change ${user.name}'s role from ${user.role} to ${role}?`)) return;
     setBusy(true);
     try {
       const result = await apiFetch<{ message: string }>(`/admin/users/${user._id}/role`, {
@@ -61,6 +64,8 @@ export default function AdminUserDetailPage() {
 
   const setBlocked = async (isBlocked: boolean) => {
     if (!user) return;
+    const action = isBlocked ? "block" : "unblock";
+    if (!window.confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ${user.name}'s account?`)) return;
     setBusy(true);
     try {
       const result = await apiFetch<{ message: string }>(`/admin/users/${user._id}/block`, {
@@ -142,7 +147,9 @@ export default function AdminUserDetailPage() {
             >
               <option value="customer">Customer</option>
               <option value="vendor">Vendor</option>
-              <option value="admin">Admin</option>
+              {(user.email === currentUser?.email || user.role === "admin") && (
+                <option value="admin">Admin</option>
+              )}
             </Select>
           </div>
           <button
@@ -195,6 +202,81 @@ export default function AdminUserDetailPage() {
           </div>
         )}
       </div>
+
+      <section className="rounded-2xl border border-orange-100 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
+        <h3 className="font-black text-gray-900 dark:text-white">Recent account activity</h3>
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <ActivityGroup title="Orders" empty="No recent orders">
+            {user.activity?.orders?.map((order) => (
+              <ActivityLine
+                key={order._id}
+                title={order.items?.map((line) => line.nameSnapshot).join(", ") || order.item?.itemName || "Pizza order"}
+                subtitle={`${orderStatusLabel(order.status)} · ${formatPrice(order.totalAmount ?? 0)}`}
+                date={order.createdAt}
+              />
+            ))}
+          </ActivityGroup>
+          <ActivityGroup title="Menu items" empty="No menu submissions">
+            {user.activity?.menuItems?.map((item) => (
+              <ActivityLine
+                key={item._id}
+                title={item.itemName}
+                subtitle={`${item.status} · ${formatPrice(item.price ?? 0)}`}
+                date={item.createdAt}
+              />
+            ))}
+          </ActivityGroup>
+          <ActivityGroup title="Payments" empty="No payment records">
+            {user.activity?.transactions?.map((transaction) => (
+              <ActivityLine
+                key={transaction._id}
+                title={formatPrice(transaction.amount / 100)}
+                subtitle={`${transaction.plan} · ${transaction.status}`}
+                date={transaction.createdAt}
+              />
+            ))}
+          </ActivityGroup>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ActivityGroup({
+  title,
+  empty,
+  children,
+}: {
+  title: string;
+  empty: string;
+  children?: React.ReactNode;
+}) {
+  const count = Array.isArray(children) ? children.length : 0;
+  return (
+    <div className="rounded-xl border border-orange-100 p-4 dark:border-white/10">
+      <p className="text-xs font-black uppercase tracking-wide text-gray-500">{title}</p>
+      <div className="mt-3 space-y-3">
+        {!count && <p className="text-xs text-gray-400">{empty}</p>}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ActivityLine({
+  title,
+  subtitle,
+  date,
+}: {
+  title: string;
+  subtitle: string;
+  date?: string;
+}) {
+  return (
+    <div className="border-b border-orange-100 pb-2 last:border-0 last:pb-0 dark:border-white/10">
+      <p className="truncate text-sm font-bold text-gray-900 dark:text-white">{title}</p>
+      <p className="text-xs text-gray-400">{subtitle}</p>
+      {date && <p className="text-[11px] text-gray-400">{formatDate(date)}</p>}
     </div>
   );
 }

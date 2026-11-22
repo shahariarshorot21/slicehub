@@ -9,11 +9,11 @@ SliceHub is a full-stack pizza ordering and delivery platform. Customers discove
 
 | Role | How it is created | Dashboard |
 | --- | --- | --- |
-| Customer | Public registration | `/customer` |
-| Vendor | Assigned by an admin from `/admin/users` | `/vendor` |
-| Admin | CLI only — `npm run create-admin`, then assignable by an admin | `/admin` |
+| Customer | Public registration (Customer account type) | `/customer` |
+| Vendor | Public registration (Vendor account type) | `/vendor` |
+| Master admin | CLI only — `npm run setup:admin` with `ADMIN_EMAIL`/`ADMIN_PASSWORD` | `/admin` |
 
-Public signup always creates a customer and never accepts a role from the client. All protected endpoints verify the session, role and blocked state on the server; dashboard layouts are additionally guarded during server rendering. Role, blocked state and subscription plan are always re-read from MongoDB rather than trusted from a stale session.
+Public signup accepts only the neutral `customer` or `vendor` account type. Admin is never accepted from the browser; it can only be provisioned by the server-side script and is bound to the configured master admin email. All protected endpoints verify the session, role, master admin identity and blocked state on the server; dashboard layouts are additionally guarded during server rendering. Role, blocked state and subscription plan are always re-read from MongoDB rather than trusted from a stale session. The Next.js `/api/auth/*` route is only a transparent proxy to the single Better Auth instance on the Express API.
 
 Passwords must be at least 8 characters and include an uppercase letter, a lowercase letter and a number. Better Auth hashes passwords before storing them; plain-text passwords are never saved.
 
@@ -83,7 +83,7 @@ Stripe webhook endpoint: `POST http://localhost:4000/api/payments/webhook` (use 
 - **Public:** homepage (hero, MongoDB-backed featured pizzas, categories, why-us, how-it-works), `/menu` with keyword search/category/location/min-max price filters and sorting, `/menu/[id]` details with restaurant profile, reviews and order modal.
 - **Customer:** overview stats, order tracking + cancel pending, favourites, profile.
 - **Vendor:** overview, menu CRUD with ImgBB upload, availability, approval status, incoming orders accept/reject, subscription + Stripe checkout, payment history, profile.
-- **Admin:** statistics and charts, user search/filter/role-change/block/unblock, menu approval/rejection/edit/delete/unpublish/feature toggle, all platform transactions.
+- **Admin:** statistics and charts, user search/filter/role-change/block/unblock, menu approval/rejection/edit/delete/unpublish/feature toggle, subscription overview with real payment history, all platform transactions.
 - **Shared:** dark/light theme, role guards, protected APIs, toasts, loading/empty states, custom 404, blocked-account page, payment success/cancel pages.
 
 Free vendors may keep up to **3 active menu items**. Premium vendors have no limit.

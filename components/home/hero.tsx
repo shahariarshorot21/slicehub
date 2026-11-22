@@ -34,7 +34,7 @@ export function Hero() {
           className="max-w-2xl"
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-orange-300/30 bg-orange-500/20 px-4 py-1.5 text-sm font-medium text-orange-100">
-            🍕 SliceHub — your neighbourhood pizza marketplace
+            SliceHub — your neighbourhood pizza marketplace
           </span>
 
           <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">

@@ -1,32 +1,87 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import { authClient } from "@/lib/auth-client"
-import type { Role, SessionUser } from "@/lib/types"
-import { dashboardPath } from "@/lib/utils"
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { apiFetch, ApiError } from "@/lib/api";
+import type { Role, SessionUser } from "@/lib/types";
+import { dashboardPath } from "@/lib/utils";
 
+type BlockState = { id: string; blocked: boolean };
+
+/**
+ * Session state comes from Better Auth, while role, blocked state and plan are
+ * refreshed from the Express API (which reads MongoDB on every request).
+ */
 export function useAuth() {
-  const session = authClient.useSession()
-  let user = (session.data?.user as unknown as SessionUser) || null
+  const session = authClient.useSession();
+  const { refetch: refetchSession } = session;
+  const [serverUser, setServerUser] = useState<SessionUser | null>(null);
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const [blockState, setBlockState] = useState<BlockState | null>(null);
 
-  if (user && user.email === "mdshahariarhossenshorot21@gmail.com") {
-    user = {
-      ...user,
-      role: "admin" as Role,
+  const sessionUser = (session.data?.user as unknown as SessionUser) || null;
+  const sessionUserId = sessionUser?.id || null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (session.isPending || !sessionUserId) return;
+
+    apiFetch<SessionUser>("/me/me")
+      .then((user) => {
+        if (cancelled || !user?.id) return;
+        setServerUser(user);
+        setBlockState({ id: sessionUserId, blocked: false });
+      })
+      .catch((error: unknown) => {
+        // /me/me returns 403 only after the fresh MongoDB record is blocked.
+        if (!cancelled && error instanceof ApiError && error.status === 403) {
+          setBlockState({ id: sessionUserId, blocked: true });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadedFor(sessionUserId);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session.isPending, sessionUserId]);
+
+  const refetch = useCallback(async () => {
+    await refetchSession();
+    if (!sessionUserId) return;
+    try {
+      const user = await apiFetch<SessionUser>("/me/me");
+      setServerUser(user);
+      setBlockState({ id: sessionUserId, blocked: false });
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 403) {
+        setBlockState({ id: sessionUserId, blocked: true });
+      }
     }
-  }
+  }, [refetchSession, sessionUserId]);
+
+  const freshUser = serverUser?.id === sessionUserId ? serverUser : null;
+  const blockedByApi = blockState?.id === sessionUserId && blockState.blocked;
+  const user = useMemo(() => {
+    if (!sessionUserId) return sessionUser;
+    if (blockedByApi && sessionUser) return { ...sessionUser, isBlocked: true };
+    return freshUser || sessionUser;
+  }, [sessionUserId, sessionUser, blockedByApi, freshUser]);
+  const serverPending = Boolean(sessionUserId) && loadedFor !== sessionUserId;
 
   return useMemo(
     () => ({
       user,
       role: user?.role as Role | undefined,
-      isPending: session.isPending,
+      isPending: session.isPending || serverPending,
       isAuthenticated: Boolean(user),
       isBlocked: Boolean(user?.isBlocked),
       isPremium: user?.subscriptionPlan === "premium",
       redirectPath: dashboardPath(user?.role),
-      refetch: session.refetch,
+      refetch,
     }),
-    [user, session.isPending, session.refetch]
-  )
+    [user, session.isPending, serverPending, refetch]
+  );
 }

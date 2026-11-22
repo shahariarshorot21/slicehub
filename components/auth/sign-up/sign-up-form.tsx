@@ -29,7 +29,7 @@ type FieldErrors = {
   confirmPassword?: string;
 };
 
-type AccountType = "customer" | "vendor" | "admin";
+type AccountType = "customer" | "vendor";
 
 export function SignUpForm() {
   const router = useRouter();
@@ -41,8 +41,6 @@ export function SignUpForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const isAdminEmail = email.trim().toLowerCase() === "mdshahariarhossenshorot21@gmail.com";
 
   const clearFieldError = (field: keyof FieldErrors) => {
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -78,14 +76,13 @@ export function SignUpForm() {
 
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      const finalAccountType = normalizedEmail === "mdshahariarhossenshorot21@gmail.com" ? "admin" : accountType;
 
       const { data, error } = normalizeAuthResult<{ user?: SessionUser }>(
         await authClient.signUp.email({
           name: name.trim(),
           email: normalizedEmail,
           password,
-          accountType: finalAccountType,
+          accountType,
         })
       );
 
@@ -113,7 +110,7 @@ export function SignUpForm() {
       }
 
       toast.success(`Welcome to SliceHub, ${user.name.split(" ")[0]}!`);
-      router.replace(dashboardPath(normalizedEmail === "mdshahariarhossenshorot21@gmail.com" ? "admin" : user.role));
+      router.replace(dashboardPath(user.role));
       router.refresh();
     } catch (caught) {
       const message = getAuthErrorMessage(caught, "Could not create account. Please try again.");
@@ -159,67 +156,56 @@ export function SignUpForm() {
             <FieldError id="signup-email-error">{errors.email}</FieldError>
           </div>
 
-          {!isAdminEmail ? (
-            <fieldset>
-              <legend className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">Account type</legend>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  aria-pressed={accountType === "customer"}
-                  onClick={() => setAccountType("customer")}
-                  className={cn(
-                    "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
-                    accountType === "customer"
-                      ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
-                      : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
-                  )}
-                >
-                  <span className={cn(
-                    "flex size-9 items-center justify-center rounded-xl transition",
-                    accountType === "customer"
-                      ? "bg-[#E5484D] text-white"
-                      : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
-                  )}>
-                    <UserRound className="size-5" />
-                  </span>
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">Customer</span>
-                  <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Customer Account</span>
-                </button>
+          <fieldset>
+            <legend className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">Account type</legend>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                aria-pressed={accountType === "customer"}
+                onClick={() => setAccountType("customer")}
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
+                  accountType === "customer"
+                    ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
+                    : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
+                )}
+              >
+                <span className={cn(
+                  "flex size-9 items-center justify-center rounded-xl transition",
+                  accountType === "customer"
+                    ? "bg-[#E5484D] text-white"
+                    : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
+                )}>
+                  <UserRound className="size-5" />
+                </span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">Customer</span>
+                <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Customer Account</span>
+              </button>
 
-                <button
-                  type="button"
-                  aria-pressed={accountType === "vendor"}
-                  onClick={() => setAccountType("vendor")}
-                  className={cn(
-                    "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
-                    accountType === "vendor"
-                      ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
-                      : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
-                  )}
-                >
-                  <span className={cn(
-                    "flex size-9 items-center justify-center rounded-xl transition",
-                    accountType === "vendor"
-                      ? "bg-[#E5484D] text-white"
-                      : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
-                  )}>
-                    <Store className="size-5" />
-                  </span>
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">Vendor</span>
-                  <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Vendor Account</span>
-                </button>
-              </div>
-            </fieldset>
-          ) : (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center dark:bg-red-500/10 dark:border-red-500/20">
-              <div className="flex items-center justify-center gap-2 text-sm font-black text-[#E5484D]">
-                <ShieldCheck className="size-5" /> Administrator Access Detected
-              </div>
-              <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
-                You are registering with the global master admin email. Standard role selectors are hidden.
-              </p>
+              <button
+                type="button"
+                aria-pressed={accountType === "vendor"}
+                onClick={() => setAccountType("vendor")}
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
+                  accountType === "vendor"
+                    ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
+                    : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
+                )}
+              >
+                <span className={cn(
+                  "flex size-9 items-center justify-center rounded-xl transition",
+                  accountType === "vendor"
+                    ? "bg-[#E5484D] text-white"
+                    : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
+                )}>
+                  <Store className="size-5" />
+                </span>
+                <span className="text-sm font-bold text-gray-900 dark:text-white">Vendor</span>
+                <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Vendor Account</span>
+              </button>
             </div>
-          )}
+          </fieldset>
 
           <div>
             <label htmlFor="name" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">Full name</label>
@@ -286,27 +272,26 @@ export function SignUpForm() {
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#E5484D] py-3 text-sm font-bold text-white transition hover:bg-[#d43b40] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            {loading ? "Creating account..." : isAdminEmail ? "Create Master Admin Account" : "Create account"}
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
-        {!isAdminEmail && (
-          <>
-            <div className="my-5 flex items-center gap-3">
-              <span className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
-              <span className="text-xs font-medium text-gray-400">or</span>
-              <span className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
-            </div>
+        <div className="my-5 flex items-center gap-3">
+          <span className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
+          <span className="text-xs font-medium text-gray-400">or</span>
+          <span className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
+        </div>
 
-            <GoogleSignInButton label="Sign up with Google" />
-          </>
-        )}
+        <GoogleSignInButton label="Sign up with Google" />
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
           <Link href="/sign-in" className="font-bold text-[#E5484D] hover:underline">Sign in</Link>
         </p>
-        <p className="mt-2 text-center text-[11px] text-gray-400">Admin access is assigned securely by SliceHub.</p>
+        <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] text-gray-400">
+          <ShieldCheck className="size-3.5" />
+          Master admin accounts are provisioned on the server and can only be used to sign in.
+        </p>
       </div>
     </div>
   );

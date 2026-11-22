@@ -37,6 +37,8 @@ export default function AdminUsersPage() {
   const { data, loading, error, reload } = useApi<AdminUser[]>(query, [query]);
 
   const setBlocked = async (user: AdminUser, isBlocked: boolean) => {
+    const action = isBlocked ? "block" : "unblock";
+    if (!window.confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ${user.name}'s account?`)) return;
     setBusyId(user._id);
     try {
       const result = await apiFetch<{ message: string }>(`/admin/users/${user._id}/block`, {
@@ -54,6 +56,7 @@ export default function AdminUsersPage() {
 
   const changeRole = async (user: AdminUser, nextRole: Role) => {
     if (nextRole === user.role) return;
+    if (!window.confirm(`Change ${user.name}'s role from ${user.role} to ${nextRole}?`)) return;
     setBusyId(user._id);
     try {
       const result = await apiFetch<{ message: string }>(`/admin/users/${user._id}/role`, {
@@ -157,7 +160,9 @@ export default function AdminUsersPage() {
                       >
                         <option value="customer">Customer</option>
                         <option value="vendor">Vendor</option>
-                        <option value="admin">Admin</option>
+                        {(user.email === currentUser?.email || user.role === "admin") && (
+                          <option value="admin">Admin</option>
+                        )}
                       </Select>
                       {isSelf ? (
                         <span className="text-xs text-gray-400">You</span>

@@ -1,4 +1,4 @@
-import { CreditCard, Heart, LayoutDashboard, ListChecks, Package, Settings, ShoppingBag, ShoppingCart, Users } from "lucide-react";
+import { CreditCard, Crown, Heart, LayoutDashboard, ListChecks, Package, Settings, ShoppingBag, ShoppingCart, Users } from "lucide-react";
 import type { NavItem } from "@/components/dashboard/dashboard-shell";
 
 export const customerNav: NavItem[] = [
@@ -20,9 +20,10 @@ export const vendorNav: NavItem[] = [
 
 export const adminNav: NavItem[] = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Manage Users", icon: Users },
-  { href: "/admin/menu", label: "Manage Menu Items", icon: ListChecks },
+  { href: "/admin/users", label: "User Management", icon: Users },
+  { href: "/admin/menu", label: "Pizza Management", icon: ListChecks },
   { href: "/admin/orders", label: "All Orders", icon: ShoppingBag },
-  { href: "/admin/transactions", label: "Transactions", icon: CreditCard },
+  { href: "/admin/subscriptions", label: "Subscription Management", icon: Crown },
+  { href: "/admin/transactions", label: "Transaction Management", icon: CreditCard },
   { href: "/admin/profile", label: "Profile Settings", icon: Settings },
 ];

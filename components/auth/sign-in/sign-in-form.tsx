@@ -100,7 +100,9 @@ export function SignInForm() {
         <div className="text-center">
           <Link href="/" className="text-3xl font-black text-[#E5484D]">SliceHub</Link>
           <h1 className="mt-4 text-2xl font-black text-gray-900 dark:text-white">Welcome back</h1>
-          <p className="mt-1 text-sm text-gray-500">Sign in to continue to your dashboard.</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Customer, vendor and master admin accounts sign in here.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-4" noValidate>

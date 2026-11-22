@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { ChevronDown, Loader2, LogOut, Menu, Moon, Sun, X } from "lucide-react";
+import { ChevronDown, Loader2, LogOut, Menu, Moon, Sun, UserRound, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRoleGuard } from "@/hooks/use-role-guard";
@@ -95,6 +95,15 @@ export function DashboardShell({
         >
           ← Back to website
         </Link>
+        {role === "admin" && (
+          <Link
+            href="/admin/profile"
+            onClick={() => setMobileOpen(false)}
+            className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-600 hover:bg-orange-50 dark:text-gray-300 dark:hover:bg-white/10"
+          >
+            <UserRound className="size-4" /> Admin Profile
+          </Link>
+        )}
         <button
           type="button"
           onClick={signOut}

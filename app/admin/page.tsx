@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   Bar,
@@ -14,14 +15,20 @@ import {
   YAxis,
 } from "recharts";
 import {
+  CalendarClock,
+  CheckCircle2,
   CircleDollarSign,
+  Clock3,
   CreditCard,
+  Crown,
   ListChecks,
   Package,
+  RefreshCw,
   ShoppingBag,
   UserCheck,
   UserPlus,
   Users,
+  XCircle,
 } from "lucide-react";
 import { useApi } from "@/hooks/use-api";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -49,9 +56,14 @@ type Overview = {
   totalAdmins: number;
   totalMenuItems: number;
   pendingMenuItems: number;
+  approvedMenuItems: number;
+  rejectedMenuItems: number;
   totalOrders: number;
   totalTransactions: number;
   revenue: number;
+  activeSubscriptions: number;
+  expiredSubscriptions: number;
+  pendingPayments: number;
   ordersByStatus: CountRow[];
   menuItemsByStatus: CountRow[];
   transactionsByStatus: CountRow[];
@@ -82,7 +94,14 @@ function statusRows(rows: CountRow[] | undefined, labels?: Record<string, string
 }
 
 export default function AdminOverview() {
-  const { data, loading, error } = useApi<Overview>("/admin/overview");
+  const { data, loading, error, reload } = useApi<Overview>("/admin/overview");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await reload();
+    setRefreshing(false);
+  };
 
   const usersData = [
     { name: "Customers", value: data?.totalCustomers || 0 },
@@ -96,11 +115,22 @@ export default function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl bg-gradient-to-r from-[#2A1512] to-[#E5484D] p-8 text-white">
-        <h2 className="text-2xl font-black sm:text-3xl">Platform overview</h2>
-        <p className="mt-2 text-sm text-white/75">
-          A live snapshot of users, menu moderation and subscription payments.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-gradient-to-r from-[#2A1512] to-[#E5484D] p-8 text-white">
+        <div>
+          <h2 className="text-2xl font-black sm:text-3xl">Platform overview</h2>
+          <p className="mt-2 text-sm text-white/75">
+            A live snapshot of users, menu moderation and subscription payments.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={refresh}
+          disabled={refreshing || loading}
+          className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/25 disabled:opacity-60"
+        >
+          <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />
+          {refreshing ? "Refreshing..." : "Refresh stats"}
+        </button>
       </div>
 
       {loading && <LoadingState label="Loading statistics..." />}
@@ -112,14 +142,19 @@ export default function AdminOverview() {
             <StatCard label="Total registered users" value={data.totalUsers} icon={Users} />
             <StatCard label="Total vendors" value={data.totalVendors} icon={UserCheck} tone="amber" />
             <StatCard label="Total customers" value={data.totalCustomers} icon={UserPlus} tone="blue" />
-            <StatCard label="Total menu items" value={data.totalMenuItems} icon={Package} tone="blue" />
-            <StatCard label="Pending menu items" value={data.pendingMenuItems} icon={ListChecks} tone="red" />
+            <StatCard label="Total pizzas" value={data.totalMenuItems} icon={Package} tone="blue" />
+            <StatCard label="Pending pizzas" value={data.pendingMenuItems} icon={ListChecks} tone="red" />
+            <StatCard label="Approved pizzas" value={data.approvedMenuItems} icon={CheckCircle2} tone="green" />
+            <StatCard label="Rejected pizzas" value={data.rejectedMenuItems} icon={XCircle} tone="red" />
             <StatCard label="Total transactions" value={data.totalTransactions} icon={CreditCard} tone="green" />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Total orders" value={data.totalOrders} icon={ShoppingBag} tone="green" />
             <StatCard label="Revenue collected" value={formatPrice(data.revenue)} icon={CircleDollarSign} tone="amber" />
+            <StatCard label="Active subscriptions" value={data.activeSubscriptions} icon={Crown} tone="blue" />
+            <StatCard label="Expired subscriptions" value={data.expiredSubscriptions} icon={CalendarClock} tone="red" />
+            <StatCard label="Pending payments" value={data.pendingPayments} icon={Clock3} tone="amber" />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
@@ -288,6 +323,12 @@ export default function AdminOverview() {
               className="rounded-xl border border-orange-200 px-5 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200"
             >
               Review pending items
+            </Link>
+            <Link
+              href="/admin/subscriptions"
+              className="rounded-xl border border-orange-200 px-5 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-200"
+            >
+              Manage subscriptions
             </Link>
             {data.pendingMenuItems > 0 && (
               <span className="inline-flex items-center rounded-xl bg-amber-50 px-5 py-2.5 text-sm font-bold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
