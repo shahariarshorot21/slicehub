@@ -5,7 +5,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-/** Password field with an accessible show/hide toggle. */
+
 export function PasswordInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
   const [visible, setVisible] = useState(false);
 

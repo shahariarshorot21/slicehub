@@ -7,13 +7,11 @@ export function useApi<T>(path: string | null, deps: unknown[] = []) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(Boolean(path));
   const [error, setError] = useState<string | null>(null);
-  // A stable serialization keeps the hook dependency list static while still
-  // refetching when callers pass changing values such as search filters.
   const depsKey = JSON.stringify(deps);
 
   const load = useCallback(
     async (quiet = false) => {
-      void depsKey; // Keep serialized filters in the dependency graph.
+      void depsKey;
       if (!path) return;
       if (!quiet) setLoading(true);
       setError(null);
@@ -31,15 +29,13 @@ export function useApi<T>(path: string | null, deps: unknown[] = []) {
   const reload = useCallback(() => load(false), [load]);
 
   useEffect(() => {
-    // Defer to a microtask so loading/result state updates never happen
-    // synchronously during the effect itself.
+
     void Promise.resolve().then(reload);
   }, [reload]);
 
   useEffect(() => {
     if (!path) return;
-    // Keep live pages in sync with orders placed or status-updated elsewhere,
-    // plus when the customer/vendor returns to this browser tab.
+
     const refresh = () => void load(true);
     const onVisibility = () => {
       if (document.visibilityState === "visible") refresh();

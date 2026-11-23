@@ -28,8 +28,7 @@ export async function requireRole(role: Role): Promise<SessionUser> {
   if (user.isBlocked) redirect("/blocked");
   if (user.role !== role) redirect(dashboardPath(user.role));
 
-  // A role value alone is not enough for admin pages: the Express API binds
-  // admin access to the configured master-admin email and enforces it again here.
+
   if (role === "admin") {
     let adminResponse: Response | null = null;
     try {

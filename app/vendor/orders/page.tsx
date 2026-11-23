@@ -12,6 +12,7 @@ import { EmptyState, LoadingState } from "@/components/ui/states";
 import { orderStatusLabel, orderStatusTone } from "@/lib/order-status";
 import { orderLineCustomization, orderLineUnitPrice, orderLines, orderTotal } from "@/lib/order-lines";
 import { formatDate, formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=200&q=80";
@@ -53,7 +54,6 @@ export default function VendorOrdersPage() {
     return () => window.removeEventListener("slicehub-orders-updated", handleSync);
   }, []);
 
-  // ডেমো অর্ডারগুলোকে সরাসরি ভেন্ডর ড্যাশবোর্ডে দেখানোর জন্য ফিল্টার রিলাক্স করা হলো
   const data = (() => {
     const combined = [...(apiOrders || []), ...localOrders];
     const map = new Map<string, Order>();
@@ -121,8 +121,7 @@ export default function VendorOrdersPage() {
               <div className="mt-4 space-y-2">
                 {lines.map((line, index) => (
                   <div key={`${line.itemId}-${index}`} className="flex items-center gap-3 rounded-xl bg-orange-50/60 p-2 dark:bg-white/5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={line.menuItem?.images?.[0] || fallbackImage}
                       alt=""
                       className="size-12 rounded-lg bg-orange-100 object-cover"

@@ -67,7 +67,6 @@ export default function SubscriptionPage() {
   const requestUpgradeToAdmin = () => {
     setUpgrading(true);
     setTimeout(() => {
-      // অ্যাডমিনের কাছে নোটিফিকেশন এবং রিকোয়েস্ট পাঠানো হলো
       const requests = JSON.parse(localStorage.getItem("slicehub_admin_upgrade_requests") || "[]");
       const newReq = { id: Date.now(), shop: "MD Shahariar Hossen Pizzeria", date: new Date().toISOString(), status: "pending" };
       requests.unshift(newReq);
@@ -79,7 +78,6 @@ export default function SubscriptionPage() {
     }, 600);
   };
 
-  // ডেমো পারপাসে অ্যাডমিন ছাড়াই ইনস্ট্যান্ট প্রিমিয়াম অ্যাক্টিভ করার অপশন বা টেস্টিং ফাংশন
   const simulateAdminApproval = () => {
     const nextSub: Subscription = {
       subscriptionPlan: "premium",
@@ -212,7 +210,6 @@ export default function SubscriptionPage() {
               <div className="mt-8">{planButton("free")}</div>
             </article>
 
-            {/* Premium Plan Card */}
             <article className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-[#E5484D] bg-gradient-to-b from-orange-50/30 via-white to-white p-8 shadow-xl dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
               <span className="absolute -right-12 top-6 rotate-45 bg-[#E5484D] px-12 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow">
                 POPULAR

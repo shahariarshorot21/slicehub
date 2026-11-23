@@ -11,6 +11,7 @@ import { Select } from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, LoadingState } from "@/components/ui/states";
 import { formatDate, formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 type SubscriptionStatus = "free" | "active" | "expired";
 
@@ -161,8 +162,7 @@ export default function AdminSubscriptionsPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     {row.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={row.image} alt="" className="size-9 rounded-full bg-orange-100 object-cover" />
+                      <Image src={row.image} alt="" className="size-9 rounded-full bg-orange-100 object-cover" />
                     ) : (
                       <span className="flex size-9 items-center justify-center rounded-full bg-orange-100 text-xs font-black text-[#E5484D]">
                         {row.name.charAt(0).toUpperCase()}

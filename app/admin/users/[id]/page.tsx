@@ -1,91 +1,118 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { ArrowLeft, ShieldBan, ShieldCheck } from "lucide-react";
-import { toast } from "sonner";
-import { useApi } from "@/hooks/use-api";
-import { useAuth } from "@/hooks/use-auth";
-import { apiFetch } from "@/lib/api";
-import type { AdminUserActivity, Role } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
-import { Select } from "@/components/ui/select";
-import { EmptyState, LoadingState } from "@/components/ui/states";
-import { formatDate, formatPrice } from "@/lib/utils";
-import { orderStatusLabel } from "@/lib/order-status";
+import { useState } from "react"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { ArrowLeft, ShieldBan, ShieldCheck } from "lucide-react"
+import { toast } from "sonner"
+import { useApi } from "@/hooks/use-api"
+import { useAuth } from "@/hooks/use-auth"
+import { apiFetch } from "@/lib/api"
+import type { AdminUserActivity, Role } from "@/lib/types"
+import { Badge } from "@/components/ui/badge"
+import { Select } from "@/components/ui/select"
+import { EmptyState, LoadingState } from "@/components/ui/states"
+import { formatDate, formatPrice } from "@/lib/utils"
+import { orderStatusLabel } from "@/lib/order-status"
+import Image from "next/image"
 
 type AdminUserDetail = {
-  _id: string;
-  name: string;
-  email: string;
-  image?: string | null;
-  role: Role;
-  isBlocked?: boolean;
-  businessName?: string | null;
-  restaurantDescription?: string | null;
-  restaurantAddress?: string | null;
-  restaurantContact?: string | null;
-  restaurantImage?: string | null;
-  restaurantLogo?: string | null;
-  restaurantCover?: string | null;
-  subscriptionPlan?: string;
-  subscriptionExpiresAt?: string | null;
-  favoriteItemIds?: string[];
-  createdAt: string;
-  activity?: AdminUserActivity;
-};
+  _id: string
+  name: string
+  email: string
+  image?: string | null
+  role: Role
+  isBlocked?: boolean
+  businessName?: string | null
+  restaurantDescription?: string | null
+  restaurantAddress?: string | null
+  restaurantContact?: string | null
+  restaurantImage?: string | null
+  restaurantLogo?: string | null
+  restaurantCover?: string | null
+  subscriptionPlan?: string
+  subscriptionExpiresAt?: string | null
+  favoriteItemIds?: string[]
+  createdAt: string
+  activity?: AdminUserActivity
+}
 
 export default function AdminUserDetailPage() {
-  const params = useParams<{ id: string }>();
-  const { user: currentUser } = useAuth();
-  const [busy, setBusy] = useState(false);
-  const { data: user, loading, error, reload } = useApi<AdminUserDetail>(
-    params?.id ? `/admin/users/${params.id}` : null
-  );
+  const params = useParams<{ id: string }>()
+  const { user: currentUser } = useAuth()
+  const [busy, setBusy] = useState(false)
+  const {
+    data: user,
+    loading,
+    error,
+    reload,
+  } = useApi<AdminUserDetail>(params?.id ? `/admin/users/${params.id}` : null)
 
   const changeRole = async (role: Role) => {
-    if (!user || role === user.role) return;
-    if (!window.confirm(`Change ${user.name}'s role from ${user.role} to ${role}?`)) return;
-    setBusy(true);
+    if (!user || role === user.role) return
+    if (
+      !window.confirm(
+        `Change ${user.name}'s role from ${user.role} to ${role}?`
+      )
+    )
+      return
+    setBusy(true)
     try {
-      const result = await apiFetch<{ message: string }>(`/admin/users/${user._id}/role`, {
-        method: "PATCH",
-        body: JSON.stringify({ role }),
-      });
-      toast.success(result.message);
-      await reload();
+      const result = await apiFetch<{ message: string }>(
+        `/admin/users/${user._id}/role`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ role }),
+        }
+      )
+      toast.success(result.message)
+      await reload()
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Could not change role");
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not change role"
+      )
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
-  };
+  }
 
   const setBlocked = async (isBlocked: boolean) => {
-    if (!user) return;
-    const action = isBlocked ? "block" : "unblock";
-    if (!window.confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ${user.name}'s account?`)) return;
-    setBusy(true);
+    if (!user) return
+    const action = isBlocked ? "block" : "unblock"
+    if (
+      !window.confirm(
+        `${action.charAt(0).toUpperCase() + action.slice(1)} ${user.name}'s account?`
+      )
+    )
+      return
+    setBusy(true)
     try {
-      const result = await apiFetch<{ message: string }>(`/admin/users/${user._id}/block`, {
-        method: "PATCH",
-        body: JSON.stringify({ isBlocked }),
-      });
-      toast.success(result.message);
-      await reload();
+      const result = await apiFetch<{ message: string }>(
+        `/admin/users/${user._id}/block`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ isBlocked }),
+        }
+      )
+      toast.success(result.message)
+      await reload()
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Could not update user");
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not update user"
+      )
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
-  };
+  }
 
-  if (loading) return <LoadingState label="Loading user details..." />;
+  if (loading) return <LoadingState label="Loading user details..." />
   if (error || !user) {
     return (
       <div>
-        <EmptyState title="User not found" message={error || "This account is no longer available."} />
+        <EmptyState
+          title="User not found"
+          message={error || "This account is no longer available."}
+        />
         <div className="mt-5 text-center">
           <Link
             href="/admin/users"
@@ -95,11 +122,11 @@ export default function AdminUserDetailPage() {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
-  const isSelf = user._id === currentUser?.id;
-  const protectedUser = isSelf || user.role === "admin";
+  const isSelf = user._id === currentUser?.id
+  const protectedUser = isSelf || user.role === "admin"
 
   return (
     <div className="space-y-6">
@@ -113,29 +140,51 @@ export default function AdminUserDetailPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           {user.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.image} alt="" className="size-14 rounded-full bg-orange-100 object-cover" />
+            <Image
+              src={user.image}
+              alt=""
+              className="size-14 rounded-full bg-orange-100 object-cover"
+            />
           ) : (
             <span className="flex size-14 items-center justify-center rounded-full bg-orange-100 text-xl font-black text-[#E5484D]">
               {user.name.charAt(0).toUpperCase()}
             </span>
           )}
           <div>
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white">{user.name}</h2>
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+              {user.name}
+            </h2>
             <p className="text-sm text-gray-500">{user.email}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone={user.role === "admin" ? "red" : user.role === "vendor" ? "blue" : "gray"}>{user.role}</Badge>
-          <Badge tone={user.isBlocked ? "red" : "green"}>{user.isBlocked ? "blocked" : "active"}</Badge>
+          <Badge
+            tone={
+              user.role === "admin"
+                ? "red"
+                : user.role === "vendor"
+                  ? "blue"
+                  : "gray"
+            }
+          >
+            {user.role}
+          </Badge>
+          <Badge tone={user.isBlocked ? "red" : "green"}>
+            {user.isBlocked ? "blocked" : "active"}
+          </Badge>
         </div>
       </div>
 
       <div className="rounded-2xl border border-orange-100 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
-        <h3 className="font-black text-gray-900 dark:text-white">Account controls</h3>
+        <h3 className="font-black text-gray-900 dark:text-white">
+          Account controls
+        </h3>
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
-            <label className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200" htmlFor="user-role">
+            <label
+              className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
+              htmlFor="user-role"
+            >
               Role
             </label>
             <Select
@@ -162,55 +211,102 @@ export default function AdminUserDetailPage() {
                 : "bg-red-50 text-red-600 hover:bg-red-100"
             }`}
           >
-            {user.isBlocked ? <ShieldCheck className="size-4" /> : <ShieldBan className="size-4" />}
+            {user.isBlocked ? (
+              <ShieldCheck className="size-4" />
+            ) : (
+              <ShieldBan className="size-4" />
+            )}
             {user.isBlocked ? "Unblock user" : "Block user"}
           </button>
-          {protectedUser && <p className="text-xs text-gray-400">{isSelf ? "This is your account." : "Admin accounts are protected."}</p>}
+          {protectedUser && (
+            <p className="text-xs text-gray-400">
+              {isSelf
+                ? "This is your account."
+                : "Admin accounts are protected."}
+            </p>
+          )}
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-3 rounded-2xl border border-orange-100 bg-white p-6 text-sm text-gray-600 dark:border-white/10 dark:bg-slate-900 dark:text-gray-300">
-          <h3 className="font-black text-gray-900 dark:text-white">Account information</h3>
-          <p><span className="font-semibold">Joined:</span> {formatDate(user.createdAt)}</p>
-          <p><span className="font-semibold">Plan:</span> {user.subscriptionPlan || "free"}</p>
-          <p><span className="font-semibold">Favourites:</span> {user.favoriteItemIds?.length || 0}</p>
+          <h3 className="font-black text-gray-900 dark:text-white">
+            Account information
+          </h3>
+          <p>
+            <span className="font-semibold">Joined:</span>{" "}
+            {formatDate(user.createdAt)}
+          </p>
+          <p>
+            <span className="font-semibold">Plan:</span>{" "}
+            {user.subscriptionPlan || "free"}
+          </p>
+          <p>
+            <span className="font-semibold">Favourites:</span>{" "}
+            {user.favoriteItemIds?.length || 0}
+          </p>
           {user.subscriptionExpiresAt && (
-            <p><span className="font-semibold">Plan expires:</span> {formatDate(user.subscriptionExpiresAt)}</p>
+            <p>
+              <span className="font-semibold">Plan expires:</span>{" "}
+              {formatDate(user.subscriptionExpiresAt)}
+            </p>
           )}
         </div>
 
         {user.role === "vendor" && (
           <div className="space-y-3 rounded-2xl border border-orange-100 bg-white p-6 text-sm text-gray-600 dark:border-white/10 dark:bg-slate-900 dark:text-gray-300">
-            <h3 className="font-black text-gray-900 dark:text-white">Restaurant</h3>
-            <p><span className="font-semibold">Name:</span> {user.businessName || "Not provided"}</p>
+            <h3 className="font-black text-gray-900 dark:text-white">
+              Restaurant
+            </h3>
+            <p>
+              <span className="font-semibold">Name:</span>{" "}
+              {user.businessName || "Not provided"}
+            </p>
             {user.restaurantDescription && <p>{user.restaurantDescription}</p>}
-            {user.restaurantAddress && <p><span className="font-semibold">Address:</span> {user.restaurantAddress}</p>}
-            {user.restaurantContact && <p><span className="font-semibold">Contact:</span> {user.restaurantContact}</p>}
+            {user.restaurantAddress && (
+              <p>
+                <span className="font-semibold">Address:</span>{" "}
+                {user.restaurantAddress}
+              </p>
+            )}
+            {user.restaurantContact && (
+              <p>
+                <span className="font-semibold">Contact:</span>{" "}
+                {user.restaurantContact}
+              </p>
+            )}
             {(user.restaurantCover || user.restaurantImage) && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={user.restaurantCover || user.restaurantImage || ""}
                 alt="Restaurant"
                 className="h-28 w-full rounded-xl object-cover"
               />
             )}
             {user.restaurantLogo && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.restaurantLogo} alt="Restaurant logo" className="size-16 rounded-xl object-cover" />
+              <Image
+                src={user.restaurantLogo}
+                alt="Restaurant logo"
+                className="size-16 rounded-xl object-cover"
+              />
             )}
           </div>
         )}
       </div>
 
       <section className="rounded-2xl border border-orange-100 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
-        <h3 className="font-black text-gray-900 dark:text-white">Recent account activity</h3>
+        <h3 className="font-black text-gray-900 dark:text-white">
+          Recent account activity
+        </h3>
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
           <ActivityGroup title="Orders" empty="No recent orders">
             {user.activity?.orders?.map((order) => (
               <ActivityLine
                 key={order._id}
-                title={order.items?.map((line) => line.nameSnapshot).join(", ") || order.item?.itemName || "Pizza order"}
+                title={
+                  order.items?.map((line) => line.nameSnapshot).join(", ") ||
+                  order.item?.itemName ||
+                  "Pizza order"
+                }
                 subtitle={`${orderStatusLabel(order.status)} · ${formatPrice(order.totalAmount ?? 0)}`}
                 date={order.createdAt}
               />
@@ -239,7 +335,7 @@ export default function AdminUserDetailPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }
 
 function ActivityGroup({
@@ -247,20 +343,22 @@ function ActivityGroup({
   empty,
   children,
 }: {
-  title: string;
-  empty: string;
-  children?: React.ReactNode;
+  title: string
+  empty: string
+  children?: React.ReactNode
 }) {
-  const count = Array.isArray(children) ? children.length : 0;
+  const count = Array.isArray(children) ? children.length : 0
   return (
     <div className="rounded-xl border border-orange-100 p-4 dark:border-white/10">
-      <p className="text-xs font-black uppercase tracking-wide text-gray-500">{title}</p>
+      <p className="text-xs font-black tracking-wide text-gray-500 uppercase">
+        {title}
+      </p>
       <div className="mt-3 space-y-3">
         {!count && <p className="text-xs text-gray-400">{empty}</p>}
         {children}
       </div>
     </div>
-  );
+  )
 }
 
 function ActivityLine({
@@ -268,15 +366,17 @@ function ActivityLine({
   subtitle,
   date,
 }: {
-  title: string;
-  subtitle: string;
-  date?: string;
+  title: string
+  subtitle: string
+  date?: string
 }) {
   return (
     <div className="border-b border-orange-100 pb-2 last:border-0 last:pb-0 dark:border-white/10">
-      <p className="truncate text-sm font-bold text-gray-900 dark:text-white">{title}</p>
+      <p className="truncate text-sm font-bold text-gray-900 dark:text-white">
+        {title}
+      </p>
       <p className="text-xs text-gray-400">{subtitle}</p>
       {date && <p className="text-[11px] text-gray-400">{formatDate(date)}</p>}
     </div>
-  );
+  )
 }

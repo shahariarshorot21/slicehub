@@ -8,10 +8,7 @@ import { dashboardPath } from "@/lib/utils";
 
 type BlockState = { id: string; blocked: boolean };
 
-/**
- * Session state comes from Better Auth, while role, blocked state and plan are
- * refreshed from the Express API (which reads MongoDB on every request).
- */
+
 export function useAuth() {
   const session = authClient.useSession();
   const { refetch: refetchSession } = session;
@@ -34,7 +31,7 @@ export function useAuth() {
         setBlockState({ id: sessionUserId, blocked: false });
       })
       .catch((error: unknown) => {
-        // /me/me returns 403 only after the fresh MongoDB record is blocked.
+
         if (!cancelled && error instanceof ApiError && error.status === 403) {
           setBlockState({ id: sessionUserId, blocked: true });
         }

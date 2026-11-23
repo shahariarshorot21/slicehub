@@ -13,6 +13,7 @@ import { OrderStatusTimeline } from "@/components/menu/order-status-timeline";
 import { orderStatusLabel, orderStatusTone } from "@/lib/order-status";
 import { orderLineCustomization, orderLineUnitPrice, orderLines, orderTotal } from "@/lib/order-lines";
 import { formatDate, formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=200&q=80";
@@ -21,7 +22,6 @@ const nextStatus: Partial<Record<OrderStatus, { status: OrderStatus; label: stri
   accepted: { status: "preparing", label: "Start preparing" },
   preparing: { status: "ready", label: "Mark ready" },
   ready: { status: "completed", label: "Mark completed" },
-  // Legacy orders still flowing through the old pipeline.
   out_for_delivery: { status: "delivered", label: "Mark delivered" },
 };
 
@@ -81,8 +81,7 @@ export default function VendorOrderDetailPage() {
           {lines.map((line, index) => (
             <div key={`${line.itemId}-${index}`} className="flex flex-wrap items-center justify-between gap-3 border-b border-orange-100 pb-3 last:border-0 last:pb-0 dark:border-white/10">
               <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={line.menuItem?.images?.[0] || fallbackImage}
                   alt=""
                   className="size-14 rounded-xl bg-orange-100 object-cover"

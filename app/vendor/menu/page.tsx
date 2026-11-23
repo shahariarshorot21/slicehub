@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState, LoadingState } from "@/components/ui/states";
 import { Modal } from "@/components/ui/modal";
 import { formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 export default function VendorMenuPage() {
   const { data, loading, reload } = useApi<Pizza[]>("/menu-items/vendor/items");
@@ -67,8 +68,7 @@ export default function VendorMenuPage() {
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {data?.map((item) => (
           <div key={item._id} className="overflow-hidden rounded-2xl border border-orange-100 bg-white dark:border-white/10 dark:bg-slate-900">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.images?.[0]} alt={item.itemName} className="h-40 w-full bg-orange-100 object-cover" />
+            <Image src={item.images?.[0]} alt={item.itemName} className="h-40 w-full bg-orange-100 object-cover" />
             <div className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-bold text-gray-900 dark:text-white">{item.itemName}</h3>

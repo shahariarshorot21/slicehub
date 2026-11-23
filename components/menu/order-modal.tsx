@@ -10,12 +10,11 @@ import { useAuth } from "@/hooks/use-auth";
 import type { Order, Pizza } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import {
-  PIZZA_OPTIONS,
-  PIZZA_SIZES,
   getDefaultSelection,
   unitPriceFor,
   type PizzaSelection,
 } from "@/lib/pizza-customization";
+import Image from "next/image";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80";
@@ -83,7 +82,6 @@ export function OrderModal({
       const existing = JSON.parse(localStorage.getItem("slicehub_demo_orders") || "[]");
       localStorage.setItem("slicehub_demo_orders", JSON.stringify([demoOrder, ...existing]));
     } catch {
-      // ignore storage error
     }
   };
 
@@ -128,7 +126,6 @@ export function OrderModal({
       setConfirmed(result.order);
       toast.success("Payment successful!");
     } catch {
-      // ডেমো মোডের জন্য ফলব্যাক অর্ডার সফলভাবে কনফার্ম করবে
       const mockOrder = {
         _id: `ORD-${Date.now().toString().slice(-6)}`,
         customerId: user?.id || "demo-customer",
@@ -163,7 +160,7 @@ export function OrderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-      {/* Modal Container matching Image 2 & 3 style */}
+
       <div className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-3xl bg-[#FDFBF7] p-6 text-stone-800 shadow-2xl sm:p-8">
         
         {/* Top Header */}
@@ -188,7 +185,6 @@ export function OrderModal({
         </div>
 
         {confirmed ? (
-          /* ==================== IMAGE 3 STYLE: PAYMENT COMPLETE ==================== */
           <div className="mt-6 text-center">
             {/* Test Mode Banner */}
             <div className="mb-6 flex items-center justify-between rounded-2xl border border-stone-200/80 bg-white p-4 shadow-xs">
@@ -236,7 +232,7 @@ export function OrderModal({
             </div>
           </div>
         ) : (
-          /* ==================== IMAGE 2 STYLE: SECURE CHECKOUT ==================== */
+
           <form onSubmit={submit} className="mt-6 space-y-5">
             {/* Test Mode Banner */}
             <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-white p-3.5 shadow-xs">
@@ -257,8 +253,7 @@ export function OrderModal({
             {/* Item summary card */}
             <div className="flex items-center justify-between rounded-2xl border border-stone-200/80 bg-white p-3.5 shadow-xs">
               <div className="flex items-center gap-3.5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={pizza.images?.[0] || fallbackImage}
                   alt=""
                   className="size-14 rounded-xl object-cover"

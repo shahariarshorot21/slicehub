@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { EmptyState, LoadingState } from "@/components/ui/states";
 import { formatDate } from "@/lib/utils";
+import Image from "next/image";
 
 type AdminUser = {
   _id: string;
@@ -123,8 +124,7 @@ export default function AdminUsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {user.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={user.image} alt="" className="size-9 rounded-full bg-orange-100 object-cover" />
+                        <Image src={user.image} alt="" className="size-9 rounded-full bg-orange-100 object-cover" />
                       ) : (
                         <span className="flex size-9 items-center justify-center rounded-full bg-orange-100 text-xs font-black text-[#E5484D]">
                           {user.name.charAt(0).toUpperCase()}

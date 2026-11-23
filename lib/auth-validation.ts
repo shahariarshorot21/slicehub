@@ -18,10 +18,7 @@ export function validateEmail(value: string): string | null {
   return null;
 }
 
-/**
- * Sign-up password rules. Better Auth enforces the minimum length on the API;
- * these extra checks give users immediate, specific feedback in the browser.
- */
+
 export function validatePassword(value: string): string | null {
   if (!value) return "Password is required.";
   if (value.length < PASSWORD_MIN_LENGTH) {

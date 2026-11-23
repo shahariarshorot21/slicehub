@@ -16,6 +16,7 @@ import { EmptyState, LoadingState } from "@/components/ui/states";
 import { OrderModal } from "@/components/menu/order-modal";
 import { useCart } from "@/components/cart/cart-context";
 import { ReviewSection } from "@/components/menu/review-section";
+import Image from "next/image";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1200&q=80";
@@ -143,8 +144,7 @@ export default function PizzaDetailsPage() {
 
         <div className="mt-6 grid gap-10 lg:grid-cols-2">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={images[activeImage] || fallbackImage}
               alt={pizza.itemName}
               className="h-80 w-full rounded-3xl object-cover shadow-lg sm:h-[420px]"
@@ -162,8 +162,7 @@ export default function PizzaDetailsPage() {
                       activeImage === index ? "border-[#E5484D]" : "border-transparent"
                     }`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image} alt="" className="size-full object-cover" />
+                    <Image src={image} alt="" className="size-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -220,16 +219,16 @@ export default function PizzaDetailsPage() {
               <div className="mt-3 rounded-2xl border border-orange-100 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase tracking-wide text-gray-400">About this restaurant</p>
                 {(vendor?.restaurantCover || vendor?.restaurantImage) && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+
+                  <Image
                     src={vendor.restaurantCover || vendor.restaurantImage || ""}
                     alt={vendor.businessName || vendor.name || "Restaurant"}
                     className="mt-3 h-36 w-full rounded-xl object-cover"
                   />
                 )}
                 {vendor?.restaurantLogo && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+
+                  <Image
                     src={vendor.restaurantLogo}
                     alt={`${vendor.businessName || vendor.name || "Restaurant"} logo`}
                     className="mt-3 size-16 rounded-xl object-cover"

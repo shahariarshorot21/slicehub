@@ -12,6 +12,7 @@ import type { Pizza } from "@/lib/types";
 import { isPremiumUser } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 function isValidImageUrl(value: string): boolean {
   try {
@@ -146,8 +147,8 @@ export function MenuItemForm({ initial }: { initial?: Pizza }) {
         )}
         {trimmedImageUrl && imageUrlSyntaxValid && (
           <div className="relative mt-3 size-24 overflow-hidden rounded-xl border border-orange-100 dark:border-white/10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            
+            <Image
               key={trimmedImageUrl}
               src={trimmedImageUrl}
               alt="Item image preview"

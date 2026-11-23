@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import {
   ArrowRight,
   BadgeCheck,
@@ -150,9 +151,8 @@ export function PizzaDetailsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/50 p-4 backdrop-blur-xs duration-200 fade-in">
-      {/* Main Modal Container with Warm Cream Background */}
       <div className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-[#FDFBF7] p-6 text-stone-800 shadow-2xl sm:p-8">
-        {/* Top Header: Brand Icon + Title + Close Button */}
+
         <div className="mb-6 flex items-start justify-between">
           <div>
             <div className="mb-3 flex size-9 items-center justify-center rounded-xl bg-[#C85A32] text-white shadow-xs">
@@ -175,13 +175,12 @@ export function PizzaDetailsModal({
           </button>
         </div>
 
-        {/* STEP 1: DETAILS & ORDER FORM */}
         {step === "details" && (
           <div className="grid gap-7 md:grid-cols-[1fr_1.05fr] md:gap-8">
-            {/* Left Column: Full-height Rounded Image */}
+  
             <div className="relative min-h-[300px] overflow-hidden rounded-2xl bg-stone-200 md:min-h-[460px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+   
+              <Image
                 key={pizza.images?.[0] || fallbackImage}
                 src={
                   imageError || !pizza.images?.[0]
@@ -199,23 +198,23 @@ export function PizzaDetailsModal({
               )}
             </div>
 
-            {/* Right Column: Info & Order Form */}
+
             <form
               onSubmit={handleProceedToCheckout}
               className="flex flex-col justify-between"
             >
               <div>
-                {/* Category Tag */}
+
                 <p className="text-[11px] font-bold tracking-[0.14em] text-[#B84A27] uppercase">
                   {pizza.category || "Classic"}
                 </p>
 
-                {/* Pizza Name (Serif Font) */}
+
                 <h3 className="mt-1 font-serif text-3xl leading-tight font-normal text-stone-900">
                   {pizza.itemName}
                 </h3>
 
-                {/* Rating Stars & Reviews */}
+
                 <div className="mt-2.5 flex items-center gap-1.5 text-xs text-stone-600">
                   <div className="flex items-center text-amber-500">
                     {[...Array(5)].map((_, idx) => (
@@ -239,12 +238,12 @@ export function PizzaDetailsModal({
                   </span>
                 </div>
 
-                {/* Description */}
+
                 <p className="mt-3 text-xs leading-relaxed text-stone-600 sm:text-[13px]">
                   {pizza.description}
                 </p>
 
-                {/* Location & Vendor Info */}
+
                 <div className="mt-4 space-y-2 border-b border-stone-200/80 pb-4 text-xs text-stone-600">
                   <div className="flex items-center gap-2">
                     <MapPin className="size-4 text-[#C85A32]" />
@@ -265,7 +264,7 @@ export function PizzaDetailsModal({
                   </div>
                 </div>
 
-                {/* Price */}
+
                 <div className="mt-4 flex items-baseline gap-2">
                   <span className="font-serif text-2xl font-medium text-stone-900">
                     {formatPrice(total)}
@@ -275,7 +274,7 @@ export function PizzaDetailsModal({
                   </span>
                 </div>
 
-                {/* Form Fields */}
+
                 <div className="mt-4 space-y-3.5">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-stone-800">
@@ -322,7 +321,7 @@ export function PizzaDetailsModal({
                 </div>
               </div>
 
-              {/* Submit Button & Disclaimer */}
+
               <div className="mt-5">
                 {!canOrder && (
                   <p className="mb-2.5 rounded-xl bg-amber-50 px-3 py-2 text-center text-xs text-amber-800">
@@ -351,7 +350,7 @@ export function PizzaDetailsModal({
           </div>
         )}
 
-        {/* STEP 2: SECURE DEMO CHECKOUT (২নং ছবির মতো) */}
+
         {step === "checkout" && (
           <div className="mx-auto max-w-xl space-y-6 py-4">
             <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white p-4 shadow-xs">
@@ -375,8 +374,8 @@ export function PizzaDetailsModal({
 
             <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white p-4">
               <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+
+                <Image
                   src={pizza.images?.[0] || fallbackImage}
                   alt=""
                   className="size-12 rounded-xl object-cover"
@@ -396,7 +395,7 @@ export function PizzaDetailsModal({
               </span>
             </div>
 
-            {/* Demo Card Box */}
+
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#5c3a21] to-[#3d2414] p-6 text-white shadow-xl">
               <div className="flex items-start justify-between">
                 <span className="text-[10px] tracking-widest text-white/60 uppercase">
@@ -446,7 +445,7 @@ export function PizzaDetailsModal({
           </div>
         )}
 
-        {/* STEP 3: PAYMENT COMPLETE / SUCCESS (৩নং ছবির মতো) */}
+
         {step === "success" && (
           <div className="mx-auto max-w-xl space-y-6 py-8 text-center">
             <div className="flex items-center justify-between rounded-2xl border border-stone-200 bg-white p-4 text-left shadow-xs">

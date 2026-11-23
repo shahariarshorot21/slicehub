@@ -61,8 +61,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     pizza,
                     quantity: Math.min(20, Math.floor(quantity)),
                     selection,
-                    // Always recompute from the pizza price so stale custom
-                    // pricing in older localStorage entries cannot leak in.
                     unitPrice: unitPriceFor(pizza.price, selection),
                   },
                 ];
@@ -71,7 +69,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch {
-        // Ignore malformed or unavailable browser storage.
       } finally {
         if (!cancelled) setHydrated(true);
       }
@@ -87,7 +84,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch {
-      // Cart still works in memory when storage is unavailable.
     }
   }, [items, hydrated]);
 

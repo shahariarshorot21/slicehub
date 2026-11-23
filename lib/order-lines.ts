@@ -1,7 +1,7 @@
 import type { Order, OrderItemSnapshot } from "@/lib/types";
 import { PIZZA_OPTIONS, PIZZA_SIZES } from "@/lib/pizza-customization";
 
-/** Normalizes legacy single-item orders into the same line shape as cart orders. */
+
 export function orderLines(order: Order): OrderItemSnapshot[] {
   if (order.items?.length) return order.items;
   if (order.item) {
@@ -24,7 +24,7 @@ export function orderLineTotal(line: OrderItemSnapshot): number {
   return orderLineUnitPrice(line) * line.quantity;
 }
 
-/** Human-readable size and extras persisted with the order. */
+
 export function orderLineCustomization(line: OrderItemSnapshot): string {
   const size = line.size ? PIZZA_SIZES.find((entry) => entry.id === line.size)?.label : undefined;
   const options = (line.options || [])

@@ -18,7 +18,6 @@ export function GoogleSignInButton({ label = "Continue with Google" }: { label?:
         const message = getAuthErrorMessage(error, "Could not start Google sign-in");
         toast.error(message);
       }
-      // On success the browser is redirected to Google; do not clear loading.
     } catch (caught) {
       toast.error(getAuthErrorMessage(caught, "Could not start Google sign-in"));
       setLoading(false);

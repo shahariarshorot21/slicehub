@@ -75,7 +75,6 @@ export function PizzaCard({ pizza, index = 0 }: { pizza: Pizza; index?: number }
     setBusy(true);
     try {
       if (!isAuthenticated) {
-        // সাইন ইন না থাকলে ডেমো মোডে লোকালস্টোরেজে টগল হবে
         const localFavs = getLocalFavorites();
         const exists = localFavs.some((p) => p._id === pizza._id);
         let updated: Pizza[];
@@ -101,7 +100,7 @@ export function PizzaCard({ pizza, index = 0 }: { pizza: Pizza; index?: number }
       await refetch();
       toast.success(result.favorite ? "Added to favourites" : "Removed from favourites");
     } catch {
-      // এপিআই ফেইল করলে লোকালস্টোরেজে ফলব্যাক হিসেবে সেভ হবে
+
       const localFavs = getLocalFavorites();
       const exists = localFavs.some((p) => p._id === pizza._id);
       let updated: Pizza[];

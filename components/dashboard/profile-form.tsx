@@ -7,11 +7,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { SessionUser } from "@/lib/types";
+import Image from "next/image";
 
 export function ProfileForm() {
   const { user, refetch } = useAuth();
   if (!user) return null;
-  // Keying the fields by user id resets the form when a different user signs in.
   return <ProfileFields key={user.id} user={user} refetch={refetch} />;
 }
 
@@ -128,8 +128,8 @@ function ProfileFields({ user, refetch }: { user: SessionUser; refetch: () => Pr
               placeholder="https://..."
             />
             {restaurantImage.trim() && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+
+              <Image
                 src={restaurantImage.trim()}
                 alt="Restaurant preview"
                 className="mt-3 h-32 w-full rounded-xl object-cover"
@@ -147,8 +147,8 @@ function ProfileFields({ user, refetch }: { user: SessionUser; refetch: () => Pr
                 placeholder="https://..."
               />
               {restaurantLogo.trim() && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+
+                <Image
                   src={restaurantLogo.trim()}
                   alt="Restaurant logo preview"
                   className="mt-3 size-16 rounded-xl object-cover"
@@ -165,8 +165,8 @@ function ProfileFields({ user, refetch }: { user: SessionUser; refetch: () => Pr
                 placeholder="https://..."
               />
               {restaurantCover.trim() && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+
+                <Image
                   src={restaurantCover.trim()}
                   alt="Restaurant cover preview"
                   className="mt-3 h-24 w-full rounded-xl object-cover"

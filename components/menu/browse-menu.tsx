@@ -49,8 +49,6 @@ export function BrowseMenu() {
 
   const { data, loading, error } = useApi<Pizza[]>(query, [query]);
 
-  // Searching, filtering, sorting and the public approved-only rule are all
-  // enforced by the Express API, so the UI renders exactly what MongoDB returned.
   const items = data ?? [];
 
   useEffect(() => {
@@ -158,7 +156,7 @@ export function BrowseMenu() {
             </Select>
           </div>
 
-          {/* সার্চ বারের নিচে ক্যাটাগরি বাটন ও Reset বাটন */}
+
           <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-orange-100/80 pt-3.5 dark:border-white/10">
             <button
               type="button"

@@ -14,6 +14,7 @@ import { getDefaultSelection, selectionSummary, unitPriceFor } from "@/lib/pizza
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, LoadingState } from "@/components/ui/states";
+import Image from "next/image";
 
 function today() {
   const now = new Date();
@@ -67,7 +68,6 @@ export default function CartPage() {
       const existing = JSON.parse(localStorage.getItem("slicehub_demo_orders") || "[]");
       localStorage.setItem("slicehub_demo_orders", JSON.stringify([...newOrders, ...existing]));
     } catch {
-      // ignore storage error
     }
   };
 
@@ -116,7 +116,6 @@ export default function CartPage() {
           });
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : "";
-          // ফলব্যাক আইটেম বা সার্ভার আইডি এরর হলে ডেমো অর্ডার তৈরি করবে
           if (
             hasFallbackItem ||
             errMsg.toLowerCase().includes("not found") ||
@@ -226,8 +225,7 @@ export default function CartPage() {
                       const lineTotal = line.unitPrice ?? unitPriceFor(line.pizza.price, line.selection || getDefaultSelection());
                       return (
                         <div key={key} className="flex flex-wrap items-center gap-4">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <Image
                             src={line.pizza.images?.[0]}
                             alt=""
                             className="size-16 rounded-xl bg-orange-100 object-cover"
