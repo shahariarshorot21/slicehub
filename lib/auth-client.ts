@@ -4,7 +4,7 @@ import { apiFetch } from "@/lib/api";
 import type { SessionUser } from "@/lib/types";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:4000",
+  baseURL: process.env.NEXT_PUBLIC_BASE_UR || "http://localhost:4000",
   plugins: [
     inferAdditionalFields({
       user: {
