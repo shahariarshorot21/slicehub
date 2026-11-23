@@ -14,7 +14,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, LoadingState } from "@/components/ui/states";
 import { formatDate, formatPrice } from "@/lib/utils";
-import Image from "next/image";
 
 type AdminMenuItem = Pizza & {
   vendorEmail?: string;
@@ -134,8 +133,8 @@ export function MenuModeration() {
             className="flex flex-wrap items-center gap-4 rounded-2xl border border-orange-100 bg-white p-4 dark:border-white/10 dark:bg-slate-900"
           >
             {item.images?.[0] ? (
-
-              <Image src={item.images[0]} alt="" className="size-16 rounded-xl bg-orange-100 object-cover" />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.images[0]} alt="" className="size-16 rounded-xl bg-orange-100 object-cover" />
             ) : (
               <span className="flex size-16 items-center justify-center rounded-xl bg-orange-100 text-2xl">🍕</span>
             )}
@@ -235,8 +234,8 @@ export function MenuModeration() {
         <Modal open onClose={() => setReviewing(null)} title={reviewing.itemName} className="max-w-2xl">
           <div className="grid gap-5 sm:grid-cols-2">
             {reviewing.images?.[0] && (
-
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={reviewing.images[0]}
                 alt={reviewing.itemName}
                 className="h-48 w-full rounded-2xl bg-orange-100 object-cover"
