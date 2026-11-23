@@ -4,7 +4,7 @@ import { apiFetch } from "@/lib/api";
 import type { SessionUser } from "@/lib/types";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.BASE_URL || "http://localhost:3000",
+  baseURL: process.env.BASE_URL || "https://slicehub-rosy.vercel.app",
   plugins: [
     inferAdditionalFields({
       user: {
