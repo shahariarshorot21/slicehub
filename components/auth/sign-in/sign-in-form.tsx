@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { FieldError } from "@/components/auth/field-error";
@@ -20,13 +20,29 @@ type FieldErrors = {
   password?: string;
 };
 
+type LoginIntent = "portal" | "admin";
+
+function roleAllowedForIntent(role: SessionUser["role"], intent: LoginIntent) {
+  if (intent === "admin") return role === "admin";
+  return role === "customer" || role === "vendor";
+}
+
 export function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const intent: LoginIntent = searchParams.get("as") === "admin" ? "admin" : "portal";
+  const denied = searchParams.get("error") === "admin-portal";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (denied) {
+      setFormError("Admin accounts must sign in through the Admin Login page.");
+    }
+  }, [denied]);
 
   const clearFieldError = (field: keyof FieldErrors) => {
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -103,6 +119,17 @@ export function SignInForm() {
         return;
       }
 
+      if (!roleAllowedForIntent(user.role, intent)) {
+        await authClient.signOut().catch(() => undefined);
+        const message =
+          user.role === "admin"
+            ? "Admin accounts must sign in through the Admin Login page."
+            : "This account cannot sign in through the Admin Login page. Please use the correct login page.";
+        setFormError(message);
+        toast.error(message);
+        return;
+      }
+
       toast.success(`Welcome back, ${user.name.split(" ")[0]}!`);
       router.replace(dashboardPath(user.role));
       router.refresh();
@@ -120,9 +147,13 @@ export function SignInForm() {
       <div className="w-full max-w-md rounded-3xl border border-orange-100 bg-white p-8 shadow-xl dark:border-white/10 dark:bg-slate-900">
         <div className="text-center">
           <Link href="/" className="text-3xl font-black text-[#E5484D]">SliceHub</Link>
-          <h1 className="mt-4 text-2xl font-black text-gray-900 dark:text-white">Welcome back</h1>
+          <h1 className="mt-4 text-2xl font-black text-gray-900 dark:text-white">
+            {intent === "admin" ? "Admin Login" : "Welcome back"}
+          </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Customer, vendor and master admin accounts sign in here.
+            {intent === "admin"
+              ? "Sign in with your master admin account."
+              : "Customer and vendor accounts sign in here."}
           </p>
         </div>
 
@@ -186,12 +217,24 @@ export function SignInForm() {
           <span className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
         </div>
 
-        <GoogleSignInButton />
+        <GoogleSignInButton intent={intent} />
 
-        <p className="mt-6 text-center text-sm text-gray-500">
-          New to SliceHub?{" "}
-          <Link href="/sign-up" className="font-bold text-[#E5484D] hover:underline">Create an account</Link>
-        </p>
+        {intent === "admin" ? (
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Not an admin?{" "}
+            <Link href="/sign-in" className="font-bold text-[#E5484D] hover:underline">Customer/Vendor login</Link>
+          </p>
+        ) : (
+          <>
+            <p className="mt-6 text-center text-sm text-gray-500">
+              New to SliceHub?{" "}
+              <Link href="/sign-up" className="font-bold text-[#E5484D] hover:underline">Create an account</Link>
+            </p>
+            <p className="mt-2 text-center text-sm text-gray-500">
+              <Link href="/sign-in?as=admin" className="font-bold text-[#E5484D] hover:underline">Admin Login</Link>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

@@ -20,11 +20,12 @@ export const authClient = createAuthClient({
 export const { signIn, signUp, signOut, useSession } = authClient;
 
 
-export function signInWithGoogle() {
+export function signInWithGoogle(intent: "portal" | "admin" = "portal") {
+  const intentParam = intent === "admin" ? "?as=admin" : "";
   return authClient.signIn.social({
     provider: "google",
-    callbackURL: `${window.location.origin}/auth/callback`,
-    errorCallbackURL: `${window.location.origin}/sign-in`,
+    callbackURL: `${window.location.origin}/auth/callback${intentParam}`,
+    errorCallbackURL: `${window.location.origin}/sign-in${intentParam}`,
   });
 }
 

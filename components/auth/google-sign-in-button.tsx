@@ -6,14 +6,22 @@ import { toast } from "sonner";
 import { getAuthErrorMessage } from "@/lib/auth-validation";
 import { normalizeAuthResult, signInWithGoogle } from "@/lib/auth-client";
 
-export function GoogleSignInButton({ label = "Continue with Google" }: { label?: string }) {
+type LoginIntent = "portal" | "admin";
+
+export function GoogleSignInButton({
+  label = "Continue with Google",
+  intent = "portal",
+}: {
+  label?: string;
+  intent?: LoginIntent;
+}) {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      const { error } = normalizeAuthResult(await signInWithGoogle());
+      const { error } = normalizeAuthResult(await signInWithGoogle(intent));
       if (error) {
         const message = getAuthErrorMessage(error, "Could not start Google sign-in");
         toast.error(message);
