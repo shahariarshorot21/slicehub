@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const AUTH_URL = (process.env.BASE_URL || "http://localhost:4000").replace(/\/$/, "");
+const AUTH_URL = (process.env.NEXT_PUBLIC_BETTER_AUTH_UR || "https://slicehub-server.vercel.app").replace(/\/$/, "");
 
 
 async function proxy(request: Request) {

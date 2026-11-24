@@ -55,13 +55,12 @@ export function normalizeAuthResult<T>(result: unknown): { data: T | null; error
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
-  // The Express API re-reads the user from MongoDB, so its role, blocked state
-  // and subscription fields are authoritative over a cached Better Auth session.
+
   try {
     const user = await apiFetch<SessionUser>("/me/me");
     if (user?.id) return user;
   } catch {
-    // Fall through to the session snapshot only when the API is unreachable.
+ 
   }
 
   const result = await authClient.getSession();
