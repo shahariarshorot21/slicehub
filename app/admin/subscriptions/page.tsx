@@ -13,7 +13,7 @@ import { EmptyState, LoadingState } from "@/components/ui/states";
 import { formatDate, formatPrice } from "@/lib/utils";
 import Image from "next/image";
 
-type SubscriptionStatus = "free" | "active" | "expired";
+type SubscriptionStatus = "free" | "active" | "expired" | "pending";
 
 type SubscriptionRow = {
   _id: string;
@@ -40,6 +40,7 @@ type SubscriptionDetail = SubscriptionRow & { transactions: Transaction[] };
 function statusTone(status: SubscriptionStatus) {
   if (status === "active") return "green" as const;
   if (status === "expired") return "red" as const;
+  if (status === "pending") return "amber" as const;
   return "gray" as const;
 }
 
@@ -70,6 +71,7 @@ export default function AdminSubscriptionsPage() {
   };
   const query = `/admin/subscriptions${Object.keys(filters).length ? `?${new URLSearchParams(filters).toString()}` : ""}`;
   const { data, loading, error } = useApi<SubscriptionRow[]>(query, [query]);
+  const { data: overview } = useApi<{ totalVendors: number }>("/admin/overview");
   const {
     data: detail,
     loading: detailLoading,
@@ -78,6 +80,7 @@ export default function AdminSubscriptionsPage() {
 
   const active = data?.filter((row) => row.status === "active").length || 0;
   const expired = data?.filter((row) => row.status === "expired").length || 0;
+  const pending = data?.filter((row) => row.status === "pending").length || 0;
   const free = data?.filter((row) => row.status === "free").length || 0;
 
   return (
@@ -90,11 +93,17 @@ export default function AdminSubscriptionsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs font-bold">
+          <span className="rounded-full bg-orange-50 px-3 py-2 text-[#E5484D] dark:bg-white/10">
+            {overview?.totalVendors ?? data?.length ?? 0} total subscribers
+          </span>
           <span className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
             {active} active
           </span>
           <span className="rounded-full bg-red-50 px-3 py-2 text-red-700 dark:bg-red-500/10 dark:text-red-300">
             {expired} expired
+          </span>
+          <span className="rounded-full bg-amber-50 px-3 py-2 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+            {pending} pending
           </span>
           <span className="rounded-full bg-gray-100 px-3 py-2 text-gray-700 dark:bg-white/10 dark:text-gray-200">
             {free} free
@@ -121,6 +130,7 @@ export default function AdminSubscriptionsPage() {
           <option value="">All subscription states</option>
           <option value="active">Active</option>
           <option value="expired">Expired</option>
+          <option value="pending">Pending</option>
           <option value="free">Free</option>
         </Select>
         <Select value={payment} onChange={(event) => setPayment(event.target.value)} aria-label="Filter by latest payment status">

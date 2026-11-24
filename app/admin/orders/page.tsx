@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { CalendarDays, MapPin, Search, User } from "lucide-react"
+import { CalendarDays, MapPin, Search, ShoppingBag, User } from "lucide-react"
 import { useApi } from "@/hooks/use-api"
 import type { Order, OrderStatus } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
@@ -29,15 +29,24 @@ export default function AdminOrdersPage() {
   const [status, setStatus] = useState("")
   const query = `/admin/orders${search || status ? `?${new URLSearchParams({ ...(search ? { search } : {}), ...(status ? { status } : {}) }).toString()}` : ""}`
   const { data, loading, error } = useApi<Order[]>(query, [query])
+  const { data: overview } = useApi<{ totalOrders: number }>("/admin/overview")
 
   return (
     <div>
-      <h2 className="text-2xl font-black text-gray-900 dark:text-white">
-        All orders
-      </h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Review every order placed across SliceHub.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">
+            All orders
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Review every order placed across SliceHub.
+          </p>
+        </div>
+        <div className="rounded-2xl bg-orange-50 px-5 py-3 dark:bg-white/5">
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Total orders</p>
+          <p className="text-xl font-black text-[#E5484D]">{overview?.totalOrders ?? "—"}</p>
+        </div>
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-[2fr_1fr]">
         <label className="relative">
@@ -104,13 +113,25 @@ export default function AdminOrdersPage() {
               <div className="mt-4 grid gap-3 text-sm text-gray-600 sm:grid-cols-2 dark:text-gray-300">
                 <p className="flex items-start gap-2">
                   <User className="mt-0.5 size-4 shrink-0 text-[#E5484D]" />
-                  {order.customer?.name ||
-                    order.contactName ||
-                    "SliceHub customer"}
+                  <span>
+                    {order.customer?.name || order.contactName || "SliceHub customer"}
+                    {order.customer?.email ? (
+                      <span className="block text-xs text-gray-400">{order.customer.email}</span>
+                    ) : null}
+                  </span>
                 </p>
                 <p className="flex items-start gap-2">
                   <CalendarDays className="mt-0.5 size-4 shrink-0 text-[#E5484D]" />
-                  {formatDate(order.deliveryDate)}
+                  <span>
+                    Ordered {formatDate(order.createdAt)}
+                    <span className="block text-xs text-gray-400">Delivery {formatDate(order.deliveryDate)}</span>
+                  </span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <ShoppingBag className="mt-0.5 size-4 shrink-0 text-[#E5484D]" />
+                  Qty{" "}
+                  {order.items?.reduce((sum, line) => sum + (line.quantity || 0), 0) ||
+                    1}
                 </p>
                 <p className="flex items-start gap-2 sm:col-span-2">
                   <MapPin className="mt-0.5 size-4 shrink-0 text-[#E5484D]" />

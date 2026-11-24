@@ -43,6 +43,7 @@ export default function AdminTransactionsPage() {
   };
   const query = `/admin/transactions${Object.keys(filters).length ? `?${new URLSearchParams(filters).toString()}` : ""}`;
   const { data, loading, error } = useApi<AdminTransaction[]>(query, [query]);
+  const { data: overview } = useApi<{ totalTransactions: number }>("/admin/overview");
   const total = data?.filter((item) => item.status === "completed").reduce((sum, item) => sum + item.amount, 0) || 0;
 
   return (
@@ -54,9 +55,15 @@ export default function AdminTransactionsPage() {
             Read-only subscription payment records. Payment status changes are made only by the verified gateway.
           </p>
         </div>
-        <div className="rounded-2xl bg-emerald-50 px-5 py-3 dark:bg-emerald-500/10">
-          <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">Filtered total collected</p>
-          <p className="text-xl font-black text-emerald-700">{formatPrice(total / 100)}</p>
+        <div className="flex flex-wrap gap-3">
+          <div className="rounded-2xl bg-orange-50 px-5 py-3 dark:bg-white/5">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Total transactions</p>
+            <p className="text-xl font-black text-[#E5484D]">{overview?.totalTransactions ?? data?.length ?? 0}</p>
+          </div>
+          <div className="rounded-2xl bg-emerald-50 px-5 py-3 dark:bg-emerald-500/10">
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">Filtered total collected</p>
+            <p className="text-xl font-black text-emerald-700">{formatPrice(total / 100)}</p>
+          </div>
         </div>
       </div>
 

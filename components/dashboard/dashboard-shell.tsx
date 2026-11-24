@@ -78,7 +78,7 @@ export function DashboardShell({
   }
 
   const sidebar = (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col overflow-y-auto">
       <div className="flex h-20 items-center gap-2 border-b border-orange-100 px-6 dark:border-white/10">
         <Image
           src="/logo.png.jpg"
@@ -93,9 +93,40 @@ export function DashboardShell({
         </span>
       </div>
 
+      {role === "admin" && auth.user && (
+        <div className="border-b border-orange-100 px-4 py-5 dark:border-white/10">
+          <div className="flex items-center gap-3 rounded-2xl bg-[#FFF5F0] p-3 dark:bg-white/5">
+            {auth.user.image ? (
+              <Image
+                src={auth.user.image}
+                alt=""
+                width={40}
+                height={40}
+                className="size-10 shrink-0 rounded-full bg-white object-cover dark:bg-slate-800"
+              />
+            ) : (
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#E5484D] text-sm font-black text-white">
+                {auth.user.name.charAt(0).toUpperCase()}
+              </span>
+            )}
+            <div className="min-w-0">
+              <p className="truncate text-sm font-black text-gray-900 dark:text-white">
+                {auth.user.name}
+              </p>
+              <p className="truncate text-[11px] text-gray-500 dark:text-gray-400">
+                {auth.user.email}
+              </p>
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#E5484D] px-2 py-0.5 text-[10px] font-bold text-white">
+                <UserRound className="size-3" /> Administrator
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="px-4 py-6">
         <p className="px-3 text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-          {role} workspace
+          {role === "admin" ? "Administration" : `${role} workspace`}
         </p>
         <nav className="mt-3 space-y-1">
           {nav.map(({ href, label, icon: Icon }) => {

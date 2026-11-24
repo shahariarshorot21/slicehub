@@ -33,6 +33,7 @@ export function MenuModeration() {
   const filters = { ...(search ? { search } : {}), ...(status ? { status } : {}), ...(availability ? { availability } : {}) };
   const query = `/admin/menu-items${Object.keys(filters).length ? `?${new URLSearchParams(filters).toString()}` : ""}`;
   const { data, loading, error, reload } = useApi<AdminMenuItem[]>(query, [query]);
+  const { data: overview } = useApi<{ totalMenuItems: number }>("/admin/overview");
 
   const review = async (item: AdminMenuItem, nextStatus: "approved" | "rejected", featured?: boolean) => {
     if (nextStatus === "rejected" && !window.confirm(`Reject ${item.itemName}? It will be hidden from the public menu.`)) {
@@ -89,10 +90,18 @@ export function MenuModeration() {
 
   return (
     <div>
-      <h2 className="text-2xl font-black text-gray-900 dark:text-white">Manage menu items</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Review submissions, manage published pizzas and keep the public menu accurate.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">Manage menu items</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Review submissions, manage published pizzas and keep the public menu accurate.
+          </p>
+        </div>
+        <div className="rounded-2xl bg-orange-50 px-5 py-3 dark:bg-white/5">
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Total pizzas</p>
+          <p className="text-xl font-black text-[#E5484D]">{overview?.totalMenuItems ?? "—"}</p>
+        </div>
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
         <label className="relative">

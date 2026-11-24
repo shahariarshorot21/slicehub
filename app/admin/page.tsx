@@ -31,6 +31,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useApi } from "@/hooks/use-api";
+import { useAuth } from "@/hooks/use-auth";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, LoadingState } from "@/components/ui/states";
@@ -95,6 +96,7 @@ function statusRows(rows: CountRow[] | undefined, labels?: Record<string, string
 
 export default function AdminOverview() {
   const { data, loading, error, reload } = useApi<Overview>("/admin/overview");
+  const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
   const refresh = async () => {
@@ -121,6 +123,11 @@ export default function AdminOverview() {
           <p className="mt-2 text-sm text-white/75">
             A live snapshot of users, menu moderation and subscription payments.
           </p>
+          {user && (
+            <p className="mt-3 text-xs font-semibold text-white/85">
+              Signed in as {user.name} · {user.email} · Administrator
+            </p>
+          )}
         </div>
         <button
           type="button"
@@ -139,19 +146,20 @@ export default function AdminOverview() {
       {!loading && data && (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <StatCard label="Total registered users" value={data.totalUsers} icon={Users} />
-            <StatCard label="Total vendors" value={data.totalVendors} icon={UserCheck} tone="amber" />
-            <StatCard label="Total customers" value={data.totalCustomers} icon={UserPlus} tone="blue" />
+            <StatCard label="Total users" value={data.totalUsers} icon={Users} />
             <StatCard label="Total pizzas" value={data.totalMenuItems} icon={Package} tone="blue" />
-            <StatCard label="Pending pizzas" value={data.pendingMenuItems} icon={ListChecks} tone="red" />
-            <StatCard label="Approved pizzas" value={data.approvedMenuItems} icon={CheckCircle2} tone="green" />
-            <StatCard label="Rejected pizzas" value={data.rejectedMenuItems} icon={XCircle} tone="red" />
+            <StatCard label="Total orders" value={data.totalOrders} icon={ShoppingBag} tone="green" />
+            <StatCard label="Total subscriptions" value={data.activeSubscriptions + data.expiredSubscriptions} icon={Crown} tone="blue" />
             <StatCard label="Total transactions" value={data.totalTransactions} icon={CreditCard} tone="green" />
+            <StatCard label="Total revenue" value={formatPrice(data.revenue)} icon={CircleDollarSign} tone="amber" />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Total orders" value={data.totalOrders} icon={ShoppingBag} tone="green" />
-            <StatCard label="Revenue collected" value={formatPrice(data.revenue)} icon={CircleDollarSign} tone="amber" />
+            <StatCard label="Total vendors" value={data.totalVendors} icon={UserCheck} tone="amber" />
+            <StatCard label="Total customers" value={data.totalCustomers} icon={UserPlus} tone="blue" />
+            <StatCard label="Pending pizzas" value={data.pendingMenuItems} icon={ListChecks} tone="red" />
+            <StatCard label="Approved pizzas" value={data.approvedMenuItems} icon={CheckCircle2} tone="green" />
+            <StatCard label="Rejected pizzas" value={data.rejectedMenuItems} icon={XCircle} tone="red" />
             <StatCard label="Active subscriptions" value={data.activeSubscriptions} icon={Crown} tone="blue" />
             <StatCard label="Expired subscriptions" value={data.expiredSubscriptions} icon={CalendarClock} tone="red" />
             <StatCard label="Pending payments" value={data.pendingPayments} icon={Clock3} tone="amber" />

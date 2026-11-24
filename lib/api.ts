@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
-/** Fired after a successful mutation so open dashboards can refresh their data. */
+
 export const DATA_CHANGED_EVENT = "slicehub:data-changed";
 
 export function notifyDataChanged() {
@@ -16,9 +16,11 @@ export class ApiError extends Error {
     this.status = status;
   }
 }
-
+ 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
+  
+  const base = typeof window !== "undefined" ? "/api/backend" : API_URL;
+  const response = await fetch(`${base}${path}`, {
     ...options,
     credentials: "include",
     headers: {

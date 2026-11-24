@@ -36,6 +36,7 @@ export default function AdminUsersPage() {
   const filters = { ...(search ? { search } : {}), ...(role ? { role } : {}), ...(status ? { status } : {}) };
   const query = `/admin/users${Object.keys(filters).length ? `?${new URLSearchParams(filters).toString()}` : ""}`;
   const { data, loading, error, reload } = useApi<AdminUser[]>(query, [query]);
+  const { data: overview } = useApi<{ totalUsers: number }>("/admin/overview");
 
   const setBlocked = async (user: AdminUser, isBlocked: boolean) => {
     const action = isBlocked ? "block" : "unblock";
@@ -75,8 +76,16 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-black text-gray-900 dark:text-white">Manage users</h2>
-      <p className="mt-1 text-sm text-gray-500">Search accounts, change roles and block or unblock users.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">Manage users</h2>
+          <p className="mt-1 text-sm text-gray-500">Search accounts, change roles and block or unblock users.</p>
+        </div>
+        <div className="rounded-2xl bg-orange-50 px-5 py-3 dark:bg-white/5">
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Total registered users</p>
+          <p className="text-xl font-black text-[#E5484D]">{overview?.totalUsers ?? "—"}</p>
+        </div>
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
         <label className="relative">

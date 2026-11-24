@@ -10,7 +10,8 @@ import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { getAuthErrorMessage, validateEmail } from "@/lib/auth-validation";
-import { authClient, getSessionUser, normalizeAuthResult } from "@/lib/auth-client";
+import { authClient, normalizeAuthResult } from "@/lib/auth-client";
+import { apiFetch, ApiError } from "@/lib/api";
 import type { SessionUser } from "@/lib/types";
 import { dashboardPath } from "@/lib/utils";
 
@@ -60,7 +61,11 @@ export function SignInForm() {
       );
 
       if (error) {
-        const message = getAuthErrorMessage(error, "Invalid email or password");
+        const rawMessage = getAuthErrorMessage(error, "Invalid email or password");
+        // Session creation is refused by the server for blocked accounts.
+        const message = /session/i.test(rawMessage)
+          ? "This account cannot sign in. If it has been blocked, contact support."
+          : rawMessage;
         setFormError(message);
         if (/(incorrect|invalid|unauthorized)/i.test(message)) {
           setErrors((current) => ({ ...current, password: message }));
@@ -69,7 +74,22 @@ export function SignInForm() {
         return;
       }
 
-      const user = (await getSessionUser()) ?? data?.user ?? null;
+      // Read the account from the protected API so role and blocked state are
+      // authoritative (the Better Auth session snapshot can be stale). This is
+      // what makes an admin land on /admin even if the session predates the
+      // role assignment.
+      let user: SessionUser | null = null;
+      try {
+        user = await apiFetch<SessionUser>("/me/me");
+      } catch (caught) {
+        if (caught instanceof ApiError && caught.status === 403) {
+          await authClient.signOut().catch(() => undefined);
+          router.replace("/blocked");
+          return;
+        }
+        user = data?.user ?? null;
+      }
+
       if (!user) {
         const message = "Signed in, but we couldn't load your account. Please try again.";
         setFormError(message);
@@ -78,6 +98,7 @@ export function SignInForm() {
       }
 
       if (user.isBlocked) {
+        await authClient.signOut().catch(() => undefined);
         router.replace("/blocked");
         return;
       }
