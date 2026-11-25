@@ -15,7 +15,7 @@ export function formatDate(value: string | Date): string {
 }
 
 export function dashboardPath(role?: string, email?: string): string {
-  // যদি ইমেইল অ্যাডমিন ইমেইল হয় অথবা রোল admin হয়, তবে সরাসরি /admin রিটার্ন করবে
+
   if (email?.trim().toLowerCase() === ADMIN_EMAIL || role === "admin") return "/admin";
   if (role === "vendor") return "/vendor";
   return "/customer";
