@@ -31,7 +31,7 @@ type FieldErrors = {
 
 type AccountType = "customer" | "vendor";
 
-const ADMIN_EMAIL = "mdshahariahossenshorot21@gmail.com";
+const ADMIN_EMAIL = "mdshahariarhossenshorot21@gmail.com";
 
 export function SignUpForm() {
   const router = useRouter();
@@ -44,8 +44,7 @@ export function SignUpForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // UI-only: the backend owns admin role assignment/verification. Never send
-  // "admin" as an accountType from the public signup form.
+
   const isAdminEmail = email.trim().toLowerCase() === ADMIN_EMAIL;
 
   const clearFieldError = (field: keyof FieldErrors) => {
