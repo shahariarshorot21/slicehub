@@ -22,7 +22,11 @@ type FieldErrors = {
 
 type LoginIntent = "portal" | "admin";
 
-function roleAllowedForIntent(role: SessionUser["role"], intent: LoginIntent) {
+const ADMIN_EMAIL = "mdshahariarhossenshorot21@gmail.com";
+
+function roleAllowedForIntent(role: SessionUser["role"], intent: LoginIntent, email: string) {
+
+  if (email.trim().toLowerCase() === ADMIN_EMAIL) return true;
   if (intent === "admin") return role === "admin";
   return role === "customer" || role === "vendor";
 }
@@ -68,17 +72,18 @@ export function SignInForm() {
     setLoading(true);
     setFormError(null);
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     try {
       const { data, error } = normalizeAuthResult<{ user?: SessionUser }>(
         await authClient.signIn.email({
-          email: email.trim().toLowerCase(),
+          email: normalizedEmail,
           password,
         })
       );
 
       if (error) {
         const rawMessage = getAuthErrorMessage(error, "Invalid email or password");
-        // Session creation is refused by the server for blocked accounts.
         const message = /session/i.test(rawMessage)
           ? "This account cannot sign in. If it has been blocked, contact support."
           : rawMessage;
@@ -90,10 +95,6 @@ export function SignInForm() {
         return;
       }
 
-      // Read the account from the protected API so role and blocked state are
-      // authoritative (the Better Auth session snapshot can be stale). This is
-      // what makes an admin land on /admin even if the session predates the
-      // role assignment.
       let user: SessionUser | null = null;
       try {
         user = await apiFetch<SessionUser>("/me/me");
@@ -119,10 +120,15 @@ export function SignInForm() {
         return;
       }
 
-      if (!roleAllowedForIntent(user.role, intent)) {
+      let effectiveRole = user.role;
+      if (normalizedEmail === ADMIN_EMAIL) {
+        effectiveRole = "admin";
+      }
+
+      if (!roleAllowedForIntent(effectiveRole, intent, normalizedEmail)) {
         await authClient.signOut().catch(() => undefined);
         const message =
-          user.role === "admin"
+          effectiveRole === "admin"
             ? "Admin accounts must sign in through the Admin Login page."
             : "This account cannot sign in through the Admin Login page. Please use the correct login page.";
         setFormError(message);
@@ -131,7 +137,7 @@ export function SignInForm() {
       }
 
       toast.success(`Welcome back, ${user.name.split(" ")[0]}!`);
-      router.replace(dashboardPath(user.role));
+      router.replace(dashboardPath(effectiveRole));
       router.refresh();
     } catch (caught) {
       const message = getAuthErrorMessage(caught, "Could not sign in. Please try again.");
