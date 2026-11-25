@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -25,6 +24,8 @@ const links = [
   { href: "/menu", label: "Browse Menu" },
 ]
 
+const ADMIN_EMAIL = "mdshahariarhossenshorot21@gmail.com";
+
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
@@ -33,6 +34,9 @@ export default function Navbar() {
 
   const [open, setOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+
+  // ইউজার ইমেইল যদি অ্যাডমিন ইমেইল হয়, তবে রোল force করে 'admin' করে দেওয়া হবে
+  const effectiveRole = user?.email?.trim().toLowerCase() === ADMIN_EMAIL ? "admin" : user?.role;
 
   const handleSignOut = async () => {
     if (signingOut) return
@@ -122,7 +126,7 @@ export default function Navbar() {
 
           {isAuthenticated && (
             <Link
-              href={dashboardPath(user?.role)}
+              href={dashboardPath(effectiveRole)}
               className="text-sm font-medium text-gray-600 transition hover:text-[#E5484D] dark:text-gray-300"
             >
               Dashboard
@@ -187,13 +191,13 @@ export default function Navbar() {
                     </p>
 
                     <p className="mt-1 text-[10px] font-bold tracking-wide text-[#E5484D] uppercase">
-                      {user?.role}
+                      {effectiveRole}
                     </p>
 
                   </div>
 
                   <Link
-                    href={dashboardPath(user?.role)}
+                    href={dashboardPath(effectiveRole)}
                     onClick={() => setOpen(false)}
                     className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 dark:text-gray-200 dark:hover:bg-white/10"
                   >
