@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -8,10 +9,12 @@ import { dashboardPath } from "@/lib/utils";
 
 type BlockState = { id: string; blocked: boolean };
 
+const ADMIN_EMAIL = "mdshahariarhossenshorot21@gmail.com";
 
 export function useAuth() {
   const session = authClient.useSession();
   const { refetch: refetchSession } = session;
+
   const [serverUser, setServerUser] = useState<SessionUser | null>(null);
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const [blockState, setBlockState] = useState<BlockState | null>(null);
@@ -27,11 +30,11 @@ export function useAuth() {
     apiFetch<SessionUser>("/me/me")
       .then((user) => {
         if (cancelled || !user?.id) return;
+
         setServerUser(user);
         setBlockState({ id: sessionUserId, blocked: false });
       })
       .catch((error: unknown) => {
-
         if (!cancelled && error instanceof ApiError && error.status === 403) {
           setBlockState({ id: sessionUserId, blocked: true });
         }
@@ -47,7 +50,9 @@ export function useAuth() {
 
   const refetch = useCallback(async () => {
     await refetchSession();
+
     if (!sessionUserId) return;
+
     try {
       const user = await apiFetch<SessionUser>("/me/me");
       setServerUser(user);
@@ -61,24 +66,39 @@ export function useAuth() {
 
   const freshUser = serverUser?.id === sessionUserId ? serverUser : null;
   const blockedByApi = blockState?.id === sessionUserId && blockState.blocked;
+
   const user = useMemo(() => {
     if (!sessionUserId) return sessionUser;
-    if (blockedByApi && sessionUser) return { ...sessionUser, isBlocked: true };
+
+    if (blockedByApi && sessionUser) {
+      return { ...sessionUser, isBlocked: true };
+    }
+
     return freshUser || sessionUser;
   }, [sessionUserId, sessionUser, blockedByApi, freshUser]);
+
   const serverPending = Boolean(sessionUserId) && loadedFor !== sessionUserId;
+
+  const isMasterAdmin =
+    user?.email?.trim().toLowerCase() === ADMIN_EMAIL;
+
+  const effectiveRole: Role | undefined = isMasterAdmin
+    ? "admin"
+    : user?.role as Role | undefined;
 
   return useMemo(
     () => ({
-      user,
-      role: user?.role as Role | undefined,
+      user: user
+        ? { ...user, role: effectiveRole as Role }
+        : null,
+      role: effectiveRole,
       isPending: session.isPending || serverPending,
       isAuthenticated: Boolean(user),
       isBlocked: Boolean(user?.isBlocked),
       isPremium: user?.subscriptionPlan === "premium",
-      redirectPath: dashboardPath(user?.role),
+      redirectPath: dashboardPath(effectiveRole, user?.email),
       refetch,
     }),
-    [user, session.isPending, serverPending, refetch]
+    [user, effectiveRole, session.isPending, serverPending, refetch]
   );
 }
