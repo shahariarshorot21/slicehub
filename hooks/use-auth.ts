@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -8,6 +9,7 @@ import { dashboardPath } from "@/lib/utils";
 
 type BlockState = { id: string; blocked: boolean };
 
+const ADMIN_EMAIL = "mdshahariarhossenshorot21@gmail.com";
 
 export function useAuth() {
   const session = authClient.useSession();
@@ -31,7 +33,6 @@ export function useAuth() {
         setBlockState({ id: sessionUserId, blocked: false });
       })
       .catch((error: unknown) => {
-
         if (!cancelled && error instanceof ApiError && error.status === 403) {
           setBlockState({ id: sessionUserId, blocked: true });
         }
@@ -61,11 +62,18 @@ export function useAuth() {
 
   const freshUser = serverUser?.id === sessionUserId ? serverUser : null;
   const blockedByApi = blockState?.id === sessionUserId && blockState.blocked;
-  const user = useMemo(() => {
+  
+  let user = useMemo(() => {
     if (!sessionUserId) return sessionUser;
     if (blockedByApi && sessionUser) return { ...sessionUser, isBlocked: true };
     return freshUser || sessionUser;
   }, [sessionUserId, sessionUser, blockedByApi, freshUser]);
+
+  
+  if (user && user.email?.trim().toLowerCase() === ADMIN_EMAIL) {
+    user = { ...user, role: "admin" };
+  }
+
   const serverPending = Boolean(sessionUserId) && loadedFor !== sessionUserId;
 
   return useMemo(
