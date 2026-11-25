@@ -31,6 +31,8 @@ type FieldErrors = {
 
 type AccountType = "customer" | "vendor";
 
+const ADMIN_EMAIL = "mdshahariahossenshorot21@gmail.com";
+
 export function SignUpForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -41,6 +43,10 @@ export function SignUpForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // UI-only: the backend owns admin role assignment/verification. Never send
+  // "admin" as an accountType from the public signup form.
+  const isAdminEmail = email.trim().toLowerCase() === ADMIN_EMAIL;
 
   const clearFieldError = (field: keyof FieldErrors) => {
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -159,51 +165,71 @@ export function SignUpForm() {
           <fieldset>
             <legend className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">Account type</legend>
             <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                aria-pressed={accountType === "customer"}
-                onClick={() => setAccountType("customer")}
-                className={cn(
-                  "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
-                  accountType === "customer"
-                    ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
-                    : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
-                )}
-              >
-                <span className={cn(
-                  "flex size-9 items-center justify-center rounded-xl transition",
-                  accountType === "customer"
-                    ? "bg-[#E5484D] text-white"
-                    : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
-                )}>
-                  <UserRound className="size-5" />
-                </span>
-                <span className="text-sm font-bold text-gray-900 dark:text-white">Customer</span>
-                <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Customer Account</span>
-              </button>
+              {isAdminEmail ? (
+                <button
+                  type="button"
+                  aria-pressed={true}
+                  disabled
+                  className={cn(
+                    "col-span-2 flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
+                    "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
+                  )}
+                >
+                  <span className="flex size-9 items-center justify-center rounded-xl bg-[#E5484D] text-white transition">
+                    <ShieldCheck className="size-5" />
+                  </span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">Admin</span>
+                  <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Master Admin Account</span>
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    aria-pressed={accountType === "customer"}
+                    onClick={() => setAccountType("customer")}
+                    className={cn(
+                      "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
+                      accountType === "customer"
+                        ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
+                        : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
+                    )}
+                  >
+                    <span className={cn(
+                      "flex size-9 items-center justify-center rounded-xl transition",
+                      accountType === "customer"
+                        ? "bg-[#E5484D] text-white"
+                        : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
+                    )}>
+                      <UserRound className="size-5" />
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">Customer</span>
+                    <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Customer Account</span>
+                  </button>
 
-              <button
-                type="button"
-                aria-pressed={accountType === "vendor"}
-                onClick={() => setAccountType("vendor")}
-                className={cn(
-                  "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
-                  accountType === "vendor"
-                    ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
-                    : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
-                )}
-              >
-                <span className={cn(
-                  "flex size-9 items-center justify-center rounded-xl transition",
-                  accountType === "vendor"
-                    ? "bg-[#E5484D] text-white"
-                    : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
-                )}>
-                  <Store className="size-5" />
-                </span>
-                <span className="text-sm font-bold text-gray-900 dark:text-white">Vendor</span>
-                <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Vendor Account</span>
-              </button>
+                  <button
+                    type="button"
+                    aria-pressed={accountType === "vendor"}
+                    onClick={() => setAccountType("vendor")}
+                    className={cn(
+                      "flex flex-col items-center gap-1 rounded-2xl border px-3 py-4 text-center transition",
+                      accountType === "vendor"
+                        ? "border-[#E5484D] bg-orange-50 ring-2 ring-[#E5484D]/20 dark:bg-[#E5484D]/10"
+                        : "border-orange-100 bg-white hover:border-orange-200 hover:bg-orange-50/60 dark:border-white/10 dark:bg-slate-900 dark:hover:bg-white/5"
+                    )}
+                  >
+                    <span className={cn(
+                      "flex size-9 items-center justify-center rounded-xl transition",
+                      accountType === "vendor"
+                        ? "bg-[#E5484D] text-white"
+                        : "bg-orange-100 text-[#E5484D] dark:bg-white/10"
+                    )}>
+                      <Store className="size-5" />
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">Vendor</span>
+                    <span className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">Create a Vendor Account</span>
+                  </button>
+                </>
+              )}
             </div>
           </fieldset>
 
