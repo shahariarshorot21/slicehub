@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -35,8 +36,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
 
-  // ইউজার ইমেইল যদি অ্যাডমিন ইমেইল হয়, তবে রোল force করে 'admin' করে দেওয়া হবে
-  const effectiveRole = user?.email?.trim().toLowerCase() === ADMIN_EMAIL ? "admin" : user?.role;
+  const effectiveRole =
+    user?.email?.trim().toLowerCase() === ADMIN_EMAIL
+      ? "admin"
+      : user?.role;
 
   const handleSignOut = async () => {
     if (signingOut) return
@@ -77,7 +80,6 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
-
           <span className="flex size-10 items-center justify-center overflow-hidden rounded-xl bg-[#E5484D] shadow-md">
             <Image
               src="/logo.png.jpg"
@@ -103,12 +105,10 @@ export default function Navbar() {
               LOCAL PIZZA BIG LOVE.
             </span>
           </span>
-
         </Link>
 
         {/* Navigation */}
         <nav className="hidden items-center gap-8 md:flex">
-
           {links.map((link) => (
             <Link
               key={link.href}
@@ -126,13 +126,12 @@ export default function Navbar() {
 
           {isAuthenticated && (
             <Link
-              href={dashboardPath(effectiveRole)}
+              href={dashboardPath(effectiveRole, user?.email)}
               className="text-sm font-medium text-gray-600 transition hover:text-[#E5484D] dark:text-gray-300"
             >
               Dashboard
             </Link>
           )}
-
         </nav>
 
         {/* Right Side */}
@@ -158,9 +157,7 @@ export default function Navbar() {
 
           {/* Authenticated User */}
           {isAuthenticated ? (
-
             <div className="relative">
-
               <button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
@@ -179,9 +176,7 @@ export default function Navbar() {
 
               {open && (
                 <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-orange-100 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-slate-900">
-
                   <div className="border-b border-orange-100 px-3 py-2 dark:border-white/10">
-
                     <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                       {user?.name}
                     </p>
@@ -191,13 +186,12 @@ export default function Navbar() {
                     </p>
 
                     <p className="mt-1 text-[10px] font-bold tracking-wide text-[#E5484D] uppercase">
-                      {effectiveRole}
+                      currently logged as: {effectiveRole}
                     </p>
-
                   </div>
 
                   <Link
-                    href={dashboardPath(effectiveRole)}
+                    href={dashboardPath(effectiveRole, user?.email)}
                     onClick={() => setOpen(false)}
                     className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 dark:text-gray-200 dark:hover:bg-white/10"
                   >
@@ -221,17 +215,12 @@ export default function Navbar() {
                       ? "Signing out..."
                       : "Sign out"}
                   </button>
-
                 </div>
               )}
-
             </div>
-
           ) : (
-
             /* Guest User */
             <div className="flex items-center gap-2">
-
               <Link
                 href="/sign-in"
                 className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-[#E5484D] hover:bg-orange-50 sm:block dark:hover:bg-white/10"
@@ -245,11 +234,8 @@ export default function Navbar() {
               >
                 Join SliceHub
               </Link>
-
             </div>
-
           )}
-
         </div>
       </div>
     </header>
