@@ -8,6 +8,8 @@ import { dashboardPath } from "@/lib/utils";
 
 type BlockState = { id: string; blocked: boolean };
 
+const ADMIN_EMAIL = "mdshahariarhossenshorot21@gmail.com";
+
 
 export function useAuth() {
   const session = authClient.useSession();
@@ -63,8 +65,11 @@ export function useAuth() {
   const blockedByApi = blockState?.id === sessionUserId && blockState.blocked;
   const user = useMemo(() => {
     if (!sessionUserId) return sessionUser;
-    if (blockedByApi && sessionUser) return { ...sessionUser, isBlocked: true };
-    return freshUser || sessionUser;
+    const base = blockedByApi && sessionUser ? { ...sessionUser, isBlocked: true } : freshUser || sessionUser;
+    if (base?.email?.trim().toLowerCase() === ADMIN_EMAIL) {
+      return { ...base, role: "admin" as Role };
+    }
+    return base;
   }, [sessionUserId, sessionUser, blockedByApi, freshUser]);
   const serverPending = Boolean(sessionUserId) && loadedFor !== sessionUserId;
 
@@ -76,7 +81,7 @@ export function useAuth() {
       isAuthenticated: Boolean(user),
       isBlocked: Boolean(user?.isBlocked),
       isPremium: user?.subscriptionPlan === "premium",
-      redirectPath: dashboardPath(user?.role),
+      redirectPath: dashboardPath(user?.role, user?.email),
       refetch,
     }),
     [user, session.isPending, serverPending, refetch]
