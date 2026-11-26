@@ -41,6 +41,11 @@ export default function Navbar() {
       ? "admin"
       : user?.role;
 
+  const dashboardHref =
+    user?.email?.trim().toLowerCase() === ADMIN_EMAIL
+      ? "/admin"
+      : dashboardPath(effectiveRole, user?.email);
+
   const handleSignOut = async () => {
     if (signingOut) return
 
@@ -126,7 +131,7 @@ export default function Navbar() {
 
           {isAuthenticated && (
             <Link
-              href={dashboardPath(effectiveRole, user?.email)}
+              href={dashboardHref}
               className="text-sm font-medium text-gray-600 transition hover:text-[#E5484D] dark:text-gray-300"
             >
               Dashboard
@@ -191,7 +196,7 @@ export default function Navbar() {
                   </div>
 
                   <Link
-                    href={dashboardPath(effectiveRole, user?.email)}
+                    href={dashboardHref}
                     onClick={() => setOpen(false)}
                     className="mt-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 hover:bg-orange-50 dark:text-gray-200 dark:hover:bg-white/10"
                   >
